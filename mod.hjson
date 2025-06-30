@@ -1,0 +1,9 @@
+displayName: "Control Helper"
+name: "control-helper"
+author: "Blaizi"
+main: "controlhelper.ControlHelper"
+description: ""
+version: 1.0
+minGameVersion: 145
+java: true
+hidden: true
