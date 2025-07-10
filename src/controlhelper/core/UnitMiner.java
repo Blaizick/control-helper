@@ -1,10 +1,11 @@
 package controlhelper.core;
 
+import static controlhelper.ControlHelper.unitMinerWindow;
+
 import arc.Events;
 import arc.func.Cons;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
-import arc.util.Log;
 import mindustry.Vars;
 import mindustry.ai.UnitCommand;
 import mindustry.content.Items;
@@ -20,10 +21,12 @@ import mindustry.world.blocks.storage.CoreBlock.CoreBuild;
 public class UnitMiner 
 {
     public Seq<UMItem> items = new Seq<>();
-
     public Seq<UnitType> unitTypes = new Seq<>();
+
     public Seq<UMUnit> units = new Seq<>();
     public Seq<UMUnit> undistributedUnits = new Seq<>();
+
+    public boolean mining = false;
 
     public void Init()
     {
@@ -33,14 +36,9 @@ public class UnitMiner
         items.add(new UMItem(Items.lead));
         items.add(new UMItem(Items.copper));
 
-        for (UMItem umItem : items) 
-        {
-            Log.info(umItem.item.name);    
-        }
-
         Events.on(UnitCreateEvent.class, e -> 
         {
-            if (!IsMining() || !unitTypes.contains(e.unit.type)) return;
+            if (!mining || !unitTypes.contains(e.unit.type)) return;
             undistributedUnits.add(new UMUnit(e.unit));
             DistributeUnits();
         });
@@ -48,6 +46,15 @@ public class UnitMiner
         Events.run(Trigger.update, () -> 
         {
             DeselectUnits();
+            if (!Vars.state.isGame() && mining)
+            {
+                unitMinerWindow.UncheckUMCheckBoxes();
+                IterruptMining();
+            }
+            if (Vars.state.isGame() && !mining && unitTypes.size > 0 && items.size > 0)
+            {
+                RefreshMining();
+            }
         });
     }
 
@@ -56,42 +63,15 @@ public class UnitMiner
     {
         if (unitTypes.contains(unitType)) return;
         unitTypes.add(unitType);
+        mining = true;
     }
 
     public void RemoveUnitType(UnitType unitType)
     {
         unitTypes.remove(unitType);
-        if (unitTypes.size == 0) return;
+        if (unitTypes.size == 0 && mining) mining = false;
     }
 
-    public void RefreshUnitPool()
-    {
-        for (UMItem item : items) 
-        {
-            if (item == null) continue;
-            item.income = 0;
-        }
-
-        for (UMUnit unit : units) 
-        {
-            if (unit == null) continue;
-            unit.FinishMining();    
-        }
-
-        units.clear();
-        undistributedUnits.clear();
-
-        Seq<Unit> allUnits = Vars.player.team().data().units;
-        for (Unit unit : allUnits) 
-        {
-            if (!unit.isCommandable() || !unit.canMine() || !unitTypes.contains(unit.type))
-            {
-                continue;
-            }
-
-            undistributedUnits.add(new UMUnit(unit));
-        }
-    } 
 
     public void DeselectUnits()
     {
@@ -111,20 +91,59 @@ public class UnitMiner
 
     public void RefreshMining()
     {
+        if (!mining) return;
+
         RefreshUnitPool();
         DistributeUnits();
 
         DeselectUnits();
     }
 
-    public boolean IsMining()
+    public void IterruptMining()
     {
-        return (unitTypes.size > 0) && (items.size > 0);
+        mining = false;
+        ClearUnitPools();
+    }
+
+
+    public void RefreshUnitPool()
+    {
+        if (!mining) return;
+
+        ClearUnitPools();
+
+        Seq<Unit> allUnits = Vars.player.team().data().units;
+        for (Unit unit : allUnits) 
+        {
+            if (!unit.isCommandable() || !unit.canMine() || !unitTypes.contains(unit.type))
+            {
+                continue;
+            }
+
+            undistributedUnits.add(new UMUnit(unit));
+        }
+    } 
+
+    public void ClearUnitPools()
+    {
+        for (UMUnit unit : units) 
+        {
+            unit.InterruptMining();    
+        }
+        
+        units.clear();
+        undistributedUnits.clear();
+
+        for (UMItem item : items)
+        {
+            item.income = 0;
+        }
     }
 
 
     public void DistributeUnits()
     {
+        if (!mining) return;
         if (undistributedUnits.size == 0 || items.size == 0) return;
 
         Seq<UMItem> locItems = items.copy();
@@ -151,24 +170,16 @@ public class UnitMiner
                 relativeIncome = (float)unitIncome / (float)GetGlobalDeficit();
             }
             item.relatimeDeficit -= relativeIncome;
-            Log.info(item.relatimeDeficit);
             undistributedUnits.remove(unit);
             units.add(unit);
 
             unit.StartMining(item.item, _unit ->
             {
                 item.income -= unitIncome;
-                if (!unitTypes.contains(_unit.unit.type)) return;
                 units.remove(_unit);
                 undistributedUnits.add(_unit);
                 DistributeUnits();
             });
-        }
-
-        for (UMItem umItem : items) 
-        {
-            Log.info(umItem.item.name);
-            Log.info(umItem.GetAmountInCore() + umItem.income);
         }
     }
 
@@ -231,6 +242,7 @@ public class UnitMiner
         return unit;
     }
 
+
     protected class UMItem
     {
         public Item item;
@@ -261,6 +273,7 @@ public class UnitMiner
             return deficit;
         }
     }
+
 
     protected class UMUnit
     {
@@ -305,14 +318,24 @@ public class UnitMiner
             if (callback != null ) callback.get(this);
         }
 
+        public void InterruptMining()
+        {
+            mining = false;
+            item = null;
+            ore = null;
+            target = null;
+            core = null;
+            callback = null;
+        }
+
         public void UpdateMining()  
         {
-            if (!mining) 
+            if (!mining || !Vars.state.isGame()) 
             {
                 return;
             }
             if (item == null || unit == null || Vars.player.team().cores().size == 0 || 
-            Vars.indexer.findClosestOre(unit, item) == null || !Vars.state.isGame())
+            Vars.indexer.findClosestOre(unit, item) == null)
             {
                 FinishMining();
                 return;

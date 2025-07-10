@@ -29,24 +29,29 @@ public class CheckBoxMod extends Button
         Init();
     }
 
+    public CheckBoxMod(String icon, boolean defaultChecked, Cons<Boolean> onCheck)
+    {
+        super();
+        this.name = null;
+        this.onCheck = onCheck;
+        this.defaultChecked = defaultChecked;
+        this.icon = icon;
+        this.style = Styles.flatTogglet;
+    }
+
     public void Init()
     {
         setStyle(Styles.flatTogglet);
         add(icon).align(Align.center);
-        Load();
-        RefreshChecked();
-        clicked(() -> {Check();} );
+        if (name != null && !name.isEmpty()) Load();
+        clicked(() -> {SetChecked(!checked);} );
     }
 
-    protected void Check()
+    public void SetChecked(boolean value)
     {
-        checked = !checked;
-        RefreshChecked();
-    }
-
-    protected void RefreshChecked()
-    {
+        checked = value;
         setChecked(checked);
+        if (name != null && !name.isEmpty()) Save();
         onCheck.get(checked);
     }
 

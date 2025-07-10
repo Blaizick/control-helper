@@ -1,6 +1,8 @@
 package controlhelper;
 
 import controlhelper.core.AdvancedAttacker;
+import controlhelper.core.DrillsValidator;
+import controlhelper.core.PlansSaver;
 import controlhelper.core.UnitMiner;
 import controlhelper.core.UnitSplitter;
 import controlhelper.inputs.Keybind;
@@ -21,6 +23,8 @@ public class ControlHelper extends Mod
     public static UnitSplitter unitSplitter;
     public static AdvancedAttacker advancedAttacker;
     public static UnitMiner unitMiner;
+    public static DrillsValidator drillsValidator;
+    public static PlansSaver plansSaver;
 
     public static UnitMinerWindow unitMinerWindow;
 
@@ -40,9 +44,12 @@ public class ControlHelper extends Mod
         unitSplitter = new UnitSplitter();
         advancedAttacker = new AdvancedAttacker();
         unitMiner = new UnitMiner();
+        drillsValidator = new DrillsValidator();
+        plansSaver = new PlansSaver();
 
         unitMinerWindow = new UnitMinerWindow();
 
+        
         Keybind.Init();
 
         rebindOverlay.Init();
@@ -52,6 +59,8 @@ public class ControlHelper extends Mod
         unitSplitter.Init();
         advancedAttacker.Init();
         unitMiner.Init();
+        drillsValidator.Init();
+        plansSaver.Init();
 
         unitMinerWindow.Init();
         unitMinerWindow.Build();
