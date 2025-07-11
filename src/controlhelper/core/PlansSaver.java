@@ -2,7 +2,6 @@ package controlhelper.core;
 
 import arc.Events;
 import arc.struct.Queue;
-import arc.util.Log;
 import mindustry.Vars;
 import mindustry.entities.units.BuildPlan;
 import mindustry.game.EventType.Trigger;
@@ -30,7 +29,6 @@ public class PlansSaver
 
             if (input.keyTap(Binding.respawn) || Vars.player.dead())
             {
-                Log.info(Vars.player.unit().plans.size);
                 if (resetPlans == true) return;
                 resetPlans = true;
                 curDelay = framesDelay;

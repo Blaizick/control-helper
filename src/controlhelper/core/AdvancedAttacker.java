@@ -1,6 +1,7 @@
 package controlhelper.core;
 
 import static arc.Core.bundle;
+import static arc.Core.graphics;
 import static arc.Core.input;
 import static arc.Core.settings;
 
@@ -9,7 +10,6 @@ import java.util.LinkedList;
 import arc.Events;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
-import arc.util.Log;
 import controlhelper.inputs.Keybind;
 import mindustry.Vars;
 import mindustry.game.EventType.*;
@@ -21,7 +21,7 @@ import mindustry.gen.Unit;
 
 public class AdvancedAttacker 
 {
-    private Thread requestsExecutor;
+    protected float curExecuteDelay = 0; 
 
     public void Init()
     {
@@ -35,13 +35,16 @@ public class AdvancedAttacker
             {
                 OnBasicAttackTap();
             }
-        });
 
-        Events.on(DisposeEvent.class, e ->
-        {
-            requestsExecutor.interrupt();
-            requestsExecutor.stop();
-            requestsExecutor = null;
+            if (curExecuteDelay > 0)
+            {
+                curExecuteDelay -= graphics.getDeltaTime();
+            }
+            else
+            {
+                ExecuteNextRequest();
+                curExecuteDelay = GetUnitsAttackDelay();
+            }
         });
 
         Events.on(UnitControlEvent.class, e -> 
@@ -53,31 +56,12 @@ public class AdvancedAttacker
                     attackRequests.remove(attackRequest);
                 }    
             }
-
-            Log.info(e);
         });
-
-        requestsExecutor = new Thread(() ->
-        {
-            while (true) 
-            {
-                try
-                {
-                    ExecuteNextRequest();
-                    Thread.sleep(UnitsAttackDelay());
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        });
-        requestsExecutor.start();
     }
 
-    private int UnitsAttackDelay()
+    private float GetUnitsAttackDelay()
     {
-        return settings.getInt(bundle.get("settings.drillsValidator.name"), 50);
+        return (float)settings.getInt(bundle.get("settings.unitsAttackDelay.name"), 50) / 1000f;
     }
 
 
