@@ -1,9 +1,6 @@
 package controlhelper.ui;
 
 import static arc.Core.bundle;
-import static controlhelper.ControlHelper.drillsValidator;
-import static controlhelper.ControlHelper.handMiner;
-import static controlhelper.ControlHelper.plansSaver;
 
 import controlhelper.ControlHelper;
 import mindustry.Vars;
