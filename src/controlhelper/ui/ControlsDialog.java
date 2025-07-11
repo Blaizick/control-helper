@@ -24,23 +24,29 @@ public class ControlsDialog extends BaseDialog
         cont.clear();
         cont.row();
 
-        for (Keybind key : Keybind.all)
+        for (Keybind keybind : Keybind.all)
         {
-            if (!key.shown) continue;
+            if (!keybind.shown) continue;
 
-            cont.add(bundle.get("keybind." + key.name()));
+            cont.add(bundle.get("keybind." + keybind.name()));
 
-            cont.add(key.key.name()).padLeft(80f);
+            cont.add(keybind.key.name()).padLeft(80f);
 
             cont.button(bundle.get("settings.keybinds.rebind"), () ->
             {
-                ControlHelper.rebindOverlay.Show(key);
+                ControlHelper.rebindOverlay.Show(keybind);
             }).size(120f, 50f).padLeft(30f);
 
             cont.button(bundle.get("settings.keybinds.reset"), () ->
             {
-                key.Reset();
-                key.Save();
+                Keybind duplicate = keybind.FindDuplicate(keybind.defaultKey);
+                if (duplicate != null)
+                {
+                    duplicate.Reset();
+                    duplicate.Save();
+                }
+                keybind.Reset();
+                keybind.Save();
                 Refresh();
             }).size(120f, 50f).padLeft(30f);
 

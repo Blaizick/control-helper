@@ -75,6 +75,18 @@ public enum Keybind
     }
 
 
+    public Keybind FindDuplicate(KeyCode keyCode)
+    {
+        for (Keybind keybind : all) 
+        {
+            if (keybind == this) continue;
+            if (keybind.key == keyCode) return keybind;
+        }
+
+        return null;
+    }
+
+
     public static void Init()
     {
         for (Keybind keybind : all)

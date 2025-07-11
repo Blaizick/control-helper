@@ -1,11 +1,13 @@
 package controlhelper.inputs;
 
 import static arc.Core.bundle;
+import static controlhelper.ControlHelper.rebindOverlay;
 
 import arc.input.KeyCode;
 import arc.scene.event.InputEvent;
 import arc.scene.event.InputListener;
 import arc.util.Align;
+import arc.util.Log;
 import controlhelper.ControlHelper;
 import mindustry.graphics.Pal;
 import mindustry.ui.dialogs.BaseDialog;
@@ -40,6 +42,7 @@ public class RebindOverlay extends BaseDialog
             {
                 hide();
                 ControlHelper.controlsDialog.Refresh();
+                rebindOverlay.removeListener(this);
             }
 
             @Override
@@ -51,6 +54,7 @@ public class RebindOverlay extends BaseDialog
                     return false;
                 }
 
+                if (keybind.FindDuplicate(key) != null) return false;
                 Rebind(key);
                 Back();
                 return false;
@@ -65,6 +69,7 @@ public class RebindOverlay extends BaseDialog
                     return false;
                 }
 
+                if (keybind.FindDuplicate(key) != null) return false;
                 Rebind(key);
                 Back();
                 return false;
