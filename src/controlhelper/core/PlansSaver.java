@@ -2,33 +2,48 @@ package controlhelper.core;
 
 import arc.Events;
 import arc.struct.Queue;
+import arc.util.Log;
 import mindustry.Vars;
 import mindustry.entities.units.BuildPlan;
 import mindustry.game.EventType.Trigger;
 import mindustry.input.Binding;
 
+import static arc.Core.bundle;
 import static arc.Core.input;
+import static arc.Core.settings;
 
 public class PlansSaver 
 {
     protected Queue<BuildPlan> plans = new Queue<>();
     protected boolean resetPlans = false;
+    public int framesDelay = 2;
+    protected int curDelay = 0;
+    
+    public boolean enabled;
 
     public void Init()
     {
         Events.run(Trigger.update, () -> 
         {
+            if (!IsEnabled()) return;
             if (!Vars.state.isGame()) return;
 
             if (input.keyTap(Binding.respawn) || Vars.player.dead())
             {
+                Log.info(Vars.player.unit().plans.size);
                 if (resetPlans == true) return;
                 resetPlans = true;
+                curDelay = framesDelay;
 
                 plans.clear();
                 Vars.player.unit().plans.each(i -> plans.add(i));
             }
 
+            if (curDelay > 0)
+            {
+                curDelay--;
+                return;
+            }
 
             if (resetPlans)
             {
@@ -40,4 +55,9 @@ public class PlansSaver
             }
         });
     }    
+
+    public boolean IsEnabled()
+    {
+        return settings.getBool(bundle.get("settings.plansSaver.name"));
+    }
 }

@@ -1,5 +1,8 @@
 package controlhelper.core;
 
+import static arc.Core.bundle;
+import static arc.Core.settings;
+
 import arc.Events;
 import arc.struct.ObjectIntMap;
 import arc.struct.Queue;
@@ -21,6 +24,7 @@ public class DrillsValidator
     {
         Events.run(Trigger.update, () -> 
         {
+            if (!IsEnabled()) return;
             if (!Vars.state.isGame()) return;
 
             Queue<BuildPlan> plans = Vars.player.unit().plans;
@@ -134,6 +138,11 @@ public class DrillsValidator
         });
 
         return itemArray.peek();
+    }
+
+    public boolean IsEnabled()
+    {
+        return settings.getBool(bundle.get("settings.drillsValidator.name"));
     }
 
 

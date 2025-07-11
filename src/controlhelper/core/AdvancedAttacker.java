@@ -77,7 +77,7 @@ public class AdvancedAttacker
 
     private int UnitsAttackDelay()
     {
-        return settings.getInt(bundle.get("settings.unitsAttackDelay"), 50);
+        return settings.getInt(bundle.get("settings.drillsValidator.name"), 50);
     }
 
 

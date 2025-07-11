@@ -1,6 +1,9 @@
 package controlhelper.ui;
 
 import static arc.Core.bundle;
+import static controlhelper.ControlHelper.drillsValidator;
+import static controlhelper.ControlHelper.handMiner;
+import static controlhelper.ControlHelper.plansSaver;
 
 import controlhelper.ControlHelper;
 import mindustry.Vars;
@@ -31,7 +34,11 @@ public class SettingsDialog extends BaseDialog
     {
         table.clear();
 
-        table.sliderPref(bundle.get("settings.unitsAttackDelay"), 50, 10, 300, 10, i -> String.valueOf(i));
+        table.checkPref(bundle.get("settings.drillsValidator.name"), true);
+        table.checkPref(bundle.get("settings.plansSaver.name"), true);
+        table.checkPref(bundle.get("settings.handMiner.name"), true);
+        table.sliderPref(bundle.get("settings.unitsAttackDelay.name"), 50, 10, 300, 10, i -> String.valueOf(i));
+
         table.row();
         table.row();
 
