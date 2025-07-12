@@ -35,7 +35,6 @@ public class SettingsDialog extends BaseDialog
         table.checkPref(bundle.get("settings.plansSaver.name"), true);
         table.checkPref(bundle.get("settings.handMiner.name"), true);
         table.sliderPref(bundle.get("settings.unitsAttackDelay.name"), 50, 10, 300, 10, i -> String.valueOf(i));
-        table.sliderPref(bundle.get("settings.plansResetMilis.name"), 500, 25, 1000, 25, i -> String.valueOf(i));
 
         table.row();
         table.row();

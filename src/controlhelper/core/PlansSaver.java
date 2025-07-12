@@ -8,7 +8,6 @@ import mindustry.game.EventType.Trigger;
 import mindustry.input.Binding;
 
 import static arc.Core.bundle;
-import static arc.Core.graphics;
 import static arc.Core.input;
 import static arc.Core.settings;
 
@@ -16,7 +15,6 @@ public class PlansSaver
 {
     protected Queue<BuildPlan> plans = new Queue<>();
     protected boolean resetPlans = false;
-    protected float curResettingTime = 0;
 
     public boolean enabled;
 
@@ -30,28 +28,19 @@ public class PlansSaver
             if (input.keyTap(Binding.respawn) || Vars.player.dead())
             {
                 if (resetPlans == true) return;
+                if (Vars.player.unit().plans.size == 0) return;
                 resetPlans = true;
-                curResettingTime = GetResettingTime();
 
                 plans.clear();
                 Vars.player.unit().plans.each(i -> plans.add(i));
             }
 
-            if (resetPlans)
+            if (resetPlans && Vars.player.unit().plans.size == 0)
             {
-                if (curResettingTime > 0)
-                {
-                    curResettingTime -= graphics.getDeltaTime();
-                    if (plans.size == 0) return;
-                    Queue<BuildPlan> newPlans = new Queue<>();
-                    plans.each(i -> newPlans.add(i));
-                    Vars.player.unit().plans = newPlans;
-                }
-                else
-                {
-                    resetPlans = false;
-                }
-
+                Queue<BuildPlan> newPlans = new Queue<>();
+                plans.each(i -> newPlans.add(i));
+                Vars.player.unit().plans = newPlans;
+                resetPlans = false;
             }
         });
     }
@@ -59,10 +48,5 @@ public class PlansSaver
     public boolean IsEnabled()
     {
         return settings.getBool(bundle.get("settings.plansSaver.name"));
-    }
-
-    public float GetResettingTime()
-    {
-        return (float)settings.getInt(bundle.get("settings.plansResetMilis.name"), 500) / 1000f;
     }
 }

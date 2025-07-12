@@ -7,7 +7,6 @@ import arc.input.KeyCode;
 import arc.scene.event.InputEvent;
 import arc.scene.event.InputListener;
 import arc.util.Align;
-import arc.util.Log;
 import controlhelper.ControlHelper;
 import mindustry.graphics.Pal;
 import mindustry.ui.dialogs.BaseDialog;

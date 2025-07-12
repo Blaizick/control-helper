@@ -45,12 +45,12 @@ public class ControlHelper extends Mod
         
         unitSplitter = new UnitSplitter();
         advancedAttacker = new AdvancedAttacker();
-        //unitMiner = new UnitMiner();
+//        unitMiner = new UnitMiner();
         drillsValidator = new DrillsValidator();
         plansSaver = new PlansSaver();
         handMiner = new HandMiner();
 
-        //unitMinerWindow = new UnitMinerWindow();
+//        unitMinerWindow = new UnitMinerWindow();
 
 
         Keybind.Init();
@@ -61,12 +61,12 @@ public class ControlHelper extends Mod
         
         unitSplitter.Init();
         advancedAttacker.Init();
-        //unitMiner.Init();
+//        unitMiner.Init();
         drillsValidator.Init();
         plansSaver.Init();
         handMiner.Init();
 
-        //unitMinerWindow.Init();
-        //unitMinerWindow.Build();
+//        unitMinerWindow.Init();
+//        unitMinerWindow.Build();
     }
 }
