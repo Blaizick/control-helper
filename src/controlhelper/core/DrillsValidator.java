@@ -38,14 +38,17 @@ public class DrillsValidator
             if (newPlans.size == 0) return;
 
             Queue<BuildPlan> tmpPlans = new Queue<>();
-            tmpPlans = ValidatePlans(newPlans);
-
             for (BuildPlan plan : deltaPlans) 
             {
                 if (plans.contains(plan))
                 {
                     tmpPlans.add(plan);
                 }
+            }
+            Queue<BuildPlan> validatedPlans = ValidatePlans(newPlans);
+            for (BuildPlan plan : validatedPlans)
+            {
+                tmpPlans.add(plan);
             }
 
             Vars.player.unit().plans = tmpPlans;
