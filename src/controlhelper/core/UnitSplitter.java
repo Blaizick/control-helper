@@ -1,6 +1,9 @@
 package controlhelper.core;
 
+import static arc.Core.settings;
+
 import arc.Events;
+import arc.math.Mathf;
 import arc.struct.Seq;
 import controlhelper.inputs.Keybind;
 import mindustry.Vars;
@@ -15,30 +18,42 @@ public class UnitSplitter
         {
             if (Keybind.split.KeyTap())
             {
-                Split();
+                Split(0.5f);
+            }
+            if (Keybind.splitAdd1.KeyTap())
+            {
+                Split((float)settings.getInt("splitAdd1.size", 0) / 100f);
+            }
+            if (Keybind.splitAdd2.KeyTap())
+            {
+                Split((float)settings.getInt("splitAdd2.size", 0) / 100f);
+            }
+            if (Keybind.splitAdd3.KeyTap())
+            {
+                Split((float)settings.getInt("splitAdd3.size", 0) / 100f);
             }
         });
     }
 
-    public void Split()
+    public void Split(float percent)
     {
         if (!Vars.control.input.commandMode)
         {
             return;
         }
 
-        Seq<Unit> units = new Seq<Unit>();
         Seq<Unit> selectedUnits = Vars.control.input.selectedUnits;
+        Seq<Unit> validUnits = new Seq<>();
+        selectedUnits.each(u -> {if (u.isValid() && u.isCommandable()) validUnits.add(u);});
 
-        for (int i = 0; i < selectedUnits.size; i++)
+        Seq<Unit> units = new Seq<Unit>();
+        int targetCount = Mathf.clamp((int)Math.round((float)validUnits.size * percent), 1, validUnits.size);
+        
+        validUnits.shuffle();
+
+        for (int i = 0; i < targetCount; i++)
         {
-            Unit unit = selectedUnits.get(i);
-            if (!unit.isValid() || !unit.isCommandable()) continue;
-
-            if (i % 2 == 0)
-            {
-                units.add(unit);
-            }
+            units.add(validUnits.get(i));
         }
 
         Vars.control.input.selectedUnits = units;

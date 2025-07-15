@@ -1,6 +1,5 @@
 package controlhelper.core;
 
-import static arc.Core.bundle;
 import static arc.Core.graphics;
 import static arc.Core.settings;
 
@@ -120,6 +119,6 @@ public class HandMiner
 
     public boolean IsEnabled()
     {
-        return settings.getBool(bundle.get("settings.handMiner.name"));
+        return settings.getBool("handMiner");
     }
 }

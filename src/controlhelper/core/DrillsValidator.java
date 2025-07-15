@@ -1,6 +1,5 @@
 package controlhelper.core;
 
-import static arc.Core.bundle;
 import static arc.Core.settings;
 
 import arc.Events;
@@ -107,8 +106,12 @@ public class DrillsValidator
         int id = drills.indexOf(i -> i.relativeReturnItem > drillsThreashold);
         if (id == -1) return plans;
 
-        Queue<BuildPlan> newPlans = anotherBlocks;
-        drills.get(id).plans.each(i -> newPlans.add(i));
+        Queue<BuildPlan> newPlans = new Queue<>();
+        plans.each(i -> 
+        {
+            if (!drills.get(id).plans.contains(i) && !anotherBlocks.contains(i)) return;
+            newPlans.add(i);
+        });
         return newPlans;
     }
 
@@ -145,7 +148,7 @@ public class DrillsValidator
 
     public boolean IsEnabled()
     {
-        return settings.getBool(bundle.get("settings.drillsValidator.name"));
+        return settings.getBool("drillsValidator");
     }
 
 

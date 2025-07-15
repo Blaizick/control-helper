@@ -20,7 +20,7 @@ import mindustry.gen.Tex;
 import mindustry.ui.Styles;
 
 
-public class WindowMod extends Table  
+public class CHWindow extends Table  
 {
     protected Table titleBarMin = new Table();
     protected Table titleBarMax = new Table(), titlePane = new Table(), cont = new Table();
@@ -33,10 +33,10 @@ public class WindowMod extends Table
 
     public Drawable titleBarBg, titlePaneBg, contBg;
 
-    public static Seq<WindowMod> windows = new Seq<>();
-    private WindowMod thisW = this;
+    public static Seq<CHWindow> windows = new Seq<>();
+    private CHWindow thisW = this;
 
-    public WindowMod(String name)
+    public CHWindow(String name)
     {
         this.name = name;
 
@@ -64,7 +64,7 @@ public class WindowMod extends Table
 
     public void InitTitleBarMin()
     {
-        titleBarMin.add(bundle.get("windows." + name));
+        titleBarMin.add(bundle.get("windows." + name + ".name"));
         titleBarMin.button("+", buttonStyle, () -> 
         {
             if (dragging) return;

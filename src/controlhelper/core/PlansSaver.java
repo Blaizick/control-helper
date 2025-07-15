@@ -7,7 +7,6 @@ import mindustry.entities.units.BuildPlan;
 import mindustry.game.EventType.Trigger;
 import mindustry.input.Binding;
 
-import static arc.Core.bundle;
 import static arc.Core.input;
 import static arc.Core.settings;
 
@@ -47,6 +46,6 @@ public class PlansSaver
 
     public boolean IsEnabled()
     {
-        return settings.getBool(bundle.get("settings.plansSaver.name"));
+        return settings.getBool("plansSaver");
     }
 }

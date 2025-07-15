@@ -11,7 +11,10 @@ public enum Keybind
 
     split(KeyCode.j),
     advancedAttack(KeyCode.k),
-    attack(KeyCode.mouseRight, false);
+    attack(KeyCode.mouseRight, false),
+    splitAdd1(KeyCode.unset),
+    splitAdd2(KeyCode.unset),
+    splitAdd3(KeyCode.unset);
 
     //endregion
 
@@ -52,11 +55,15 @@ public enum Keybind
     }
 
 
+    public void Unset()
+    {
+        key = KeyCode.unset;
+    }
+
     public void Reset()
     {
         key = defaultKey;
     }
-
 
     public void Rebind(KeyCode key)
     {

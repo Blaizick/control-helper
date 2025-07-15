@@ -1,17 +1,24 @@
-package controlhelper.core;
+/*package controlhelper.core;
 
+import static controlhelper.ControlHelper.requestExecutor;
 import static controlhelper.ControlHelper.unitMinerWindow;
 
+import arc.Core;
 import arc.Events;
 import arc.func.Cons;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
+import arc.util.Log;
+import arc.util.Timer;
+import controlhelper.Utils.ArrayUtils;
+import controlhelper.Utils.GeneralUtils;
+import controlhelper.core.requestexecutor.IRequest;
+import controlhelper.core.requestexecutor.IUnitsRequest;
 import mindustry.Vars;
 import mindustry.ai.UnitCommand;
 import mindustry.content.Items;
 import mindustry.game.EventType.Trigger;
 import mindustry.game.EventType.UnitCreateEvent;
-import mindustry.gen.Call;
 import mindustry.gen.Unit;
 import mindustry.type.Item;
 import mindustry.type.UnitType;
@@ -23,8 +30,10 @@ public class UnitMiner
     public Seq<UMItem> items = new Seq<>();
     public Seq<UnitType> unitTypes = new Seq<>();
 
-    public Seq<UMUnit> units = new Seq<>();
-    public Seq<UMUnit> undistributedUnits = new Seq<>();
+    public Seq<UnitBatch> batches = new Seq<>();
+    public Seq<Unit> undistributedUnits = new Seq<>();
+
+    public int batchSize = 24;
 
     public boolean mining = false;
 
@@ -39,7 +48,7 @@ public class UnitMiner
         Events.on(UnitCreateEvent.class, e -> 
         {
             if (!mining || !unitTypes.contains(e.unit.type)) return;
-            undistributedUnits.add(new UMUnit(e.unit));
+            undistributedUnits.add(e.unit);
             DistributeUnits();
         });
 
@@ -102,7 +111,7 @@ public class UnitMiner
     public void IterruptMining()
     {
         mining = false;
-        ClearUnitPools();
+        ResetMiner();
     }
 
 
@@ -110,7 +119,7 @@ public class UnitMiner
     {
         if (!mining) return;
 
-        ClearUnitPools();
+        ResetMiner();
 
         Seq<Unit> allUnits = Vars.player.team().data().units;
         for (Unit unit : allUnits) 
@@ -120,18 +129,18 @@ public class UnitMiner
                 continue;
             }
 
-            undistributedUnits.add(new UMUnit(unit));
+            undistributedUnits.add(unit);
         }
     } 
 
-    public void ClearUnitPools()
+    public void ResetMiner()
     {
-        for (UMUnit unit : units) 
+        for (UnitBatch batch : batches) 
         {
-            unit.InterruptMining();    
+            batch.InterruptMining();
         }
         
-        units.clear();
+        batches.clear();
         undistributedUnits.clear();
 
         for (UMItem item : items)
@@ -152,7 +161,7 @@ public class UnitMiner
         while (undistributedUnits.size > 0 && locItems.size > 0) 
         {
             UMItem item = FindMostDeficitetItem(locItems);
-            UMUnit unit = FindWorstUndistrUnitCanMine(item.item);
+            Unit unit = FindWorstUndistrUnitCanMine(item.item);
 
             if (unit == null)
             {
@@ -160,7 +169,7 @@ public class UnitMiner
                 continue;
             }
 
-            int unitIncome = unit.GetCapacity();
+            int unitIncome = unit.type.itemCapacity;
             item.income += unitIncome;
 
             int globalDeficit = GetGlobalDeficit();
@@ -171,15 +180,10 @@ public class UnitMiner
             }
             item.relatimeDeficit -= relativeIncome;
             undistributedUnits.remove(unit);
-            units.add(unit);
-
-            unit.StartMining(item.item, _unit ->
-            {
-                item.income -= unitIncome;
-                units.remove(_unit);
-                undistributedUnits.add(_unit);
-                DistributeUnits();
-            });
+            
+            UnitBatch batch = GetBatch(item);
+            batches.add(batch);
+            batch.delayedUnits.add(unit);
         }
     }
 
@@ -226,16 +230,16 @@ public class UnitMiner
         return mostDeficited;
     }
 
-    public UMUnit FindWorstUndistrUnitCanMine(Item item)
+    public Unit FindWorstUndistrUnitCanMine(Item item)
     {
         if (undistributedUnits.size == 0 || item == null) return null;
 
-        UMUnit unit = null;
-        for (UMUnit curUnit : undistributedUnits) 
+        Unit unit = null;
+        for (Unit curUnit : undistributedUnits) 
         {
-            if (!curUnit.unit.canMine(item)) continue;
+            if (!curUnit.canMine(item)) continue;
             if (unit == null) unit = curUnit;
-            if (curUnit.unit.type.mineTier >= unit.unit.type.mineTier) continue;
+            if (curUnit.type.mineTier >= unit.type.mineTier) continue;
             unit = curUnit;
         }
 
@@ -243,6 +247,32 @@ public class UnitMiner
     }
 
 
+    public UnitBatch GetBatch(UMItem item)
+    {
+        UnitBatch batch = null;
+        for (UnitBatch b : batches)
+        {
+            if (b.item != item.item || b.delayedUnits.size >= batchSize) continue;
+            batch = b;
+        }
+
+        if (batch == null)
+        {
+            batch = new UnitBatch(item.item);
+            batch.StartMining(u -> 
+            {
+                item.income -= u.type.itemCapacity;
+                undistributedUnits.add(u);
+                Log.info(undistributedUnits.size);
+                DistributeUnits();
+                Log.info(undistributedUnits.size);
+            });
+        }
+
+        return batch;
+    }
+
+    
     protected class UMItem
     {
         public Item item;
@@ -274,48 +304,50 @@ public class UnitMiner
         }
     }
 
-
-    protected class UMUnit
+    protected class UnitBatch
     {
         public Item item;
-        public Unit unit;
+        protected Seq<Unit> units = new Seq<>();
+        public Seq<Unit> delayedUnits = new Seq<>();
+
+        protected Seq<Unit> returnUnits = new Seq<>();
+        protected boolean mined = false;
 
         public boolean mining = false;
-        protected Cons<UMUnit> callback;
+        protected Cons<Unit> callback;
         
         protected Tile ore;
         protected Vec2 target;
         protected CoreBuild core;
 
-        public UMUnit(Unit unit)
+        public float flyRequestDelay = 3f;
+        public float targetCompletion = 0.9f;
+
+        public float itemsMined = 0;
+
+        public UnitBatch(Item item)
         {
-            this.unit = unit;
+            this.item = item;
 
             Events.run(Trigger.update, () ->
             {
                 if (!mining) return;
+                Log.info(batches.size);
                 UpdateMining();
             });
+
+            Timer.schedule(() -> 
+            {
+                if (!mining) return;
+                BoostUnits();
+            }, 0f, flyRequestDelay);
         }
 
-        public void StartMining(Item item, Cons<UMUnit> callback)
+        public void StartMining(Cons<Unit> callback)
         {
-            this.item = item;
             this.callback = callback;
             mining = true;
-            ore = null;
             target = null;
-            core = null;
-        }
-
-        public void FinishMining()
-        {
-            mining = false;
-            item = null;
-            ore = null;
-            target = null;
-            core = null;
-            if (callback != null ) callback.get(this);
         }
 
         public void InterruptMining()
@@ -334,120 +366,136 @@ public class UnitMiner
             {
                 return;
             }
-            if (item == null || unit == null || Vars.player.team().cores().size == 0 || 
-            Vars.indexer.findClosestOre(unit, item) == null)
+            if (item == null || Vars.player.team().cores().size == 0 || 
+            Vars.indexer.findClosestOre(Vars.player.unit(), item) == null)
             {
-                FinishMining();
                 return;
             }
 
-            if (unit.stack.amount == 0)
+            if (units.size == 0 && returnUnits.size == 0)
             {
-                MovingToOre(() -> 
+                DistributeUnits();
+                mined = false;
+                return;
+            }
+
+            if (core == null || core.dead)
+            {
+                core = units.first().closestCore();
+            }
+            if (ore == null)
+            {
+                ore = Vars.indexer.findClosestOre(units.first(), item);
+            }
+
+            for (Unit unit : units) 
+            {
+                if (!unit.dead) continue;
+                units.remove(unit);
+            }
+
+            if (returnUnits.size > 0)
+            {
+                if (target == null || !target.within(core, 1f))
                 {
-                    unit.mineTile = ore;
-                });
+                    target = new Vec2(core.x, core.y);
+                    requestExecutor.AddRequest(new IUnitsRequest.MoveRequest(GeneralUtils.GetUnitIds(returnUnits), null, null, target));
+                }
+                
+                for (Unit unit : returnUnits)
+                {
+                    if (!target.within(unit, unit.type.range - 2f)) continue;
+                    requestExecutor.AddRequest(new IRequest.TransferItemsTo(unit, unit.stack.amount, core, () ->
+                    {
+                        returnUnits.remove(unit);
+                        if (returnUnits.size == 0) target = null;
+                        if (mined || unit.stack.amount > 0)
+                        {
+                            units.remove(unit);
+                            if (callback != null) callback.get(unit);
+                        }
+                    }));
+                }
+
+                return;
+            }
+
+            if (GetRelativeCompletion() > targetCompletion)
+            {
+                units.each(unit -> returnUnits.add(unit));
+                mined = true;
             }
             else
             {
-                if (unit.stack.item == item)
+                if (target == null || !target.within(ore, 1f))
                 {
-                    if (unit.stack.amount < GetCapacity())
-                    {
-                        MovingToOre(() -> 
-                        {
-                            unit.mineTile = ore;
-                        });
-                    }
-                    else
-                    {
-                        MovingToCore(() -> 
-                        {
-                            TransferItemsToCore();
-                            FinishMining();
-                        });
-                    }
+                    target = new Vec2(ore.worldx(), ore.worldy());
+                    requestExecutor.AddRequest(new IUnitsRequest.MoveRequest(GeneralUtils.GetUnitIds(units), null, null, target));
                 }
-                else
+
+                for (Unit unit : units)
                 {
-                    MovingToCore(() -> 
+                    if (unit.mineTile != null && unit.mineTile == ore)
                     {
-                        TransferItemsToCore();
-                    });
+                        if (unit.stack.amount < unit.type.itemCapacity) itemsMined += Core.graphics.getDeltaTime() * unit.type.mineSpeed;
+                        continue;
+                    }
+                    if (unit.within(target, unit.type.mineRange - 2f)) unit.mineTile = ore;
                 }
             }
         }
 
-        public void MovingToOre(Runnable callback)
+        public void DistributeUnits()
         {
-            if (ore != null && unit.mineTile == ore) return;
-
-            if (target == null || ore == null || target != new Vec2(ore.worldx(), ore.worldy()))
+            units.clear();
+            for (Unit unit : delayedUnits)
             {
-                unit.mineTile = null;
-                ore = Vars.indexer.findClosestOre(unit, item);
-                target = new Vec2(ore.worldx(), ore.worldy());
-                GoTo(target);
+                if (unit.dead)
+                {
+                    callback.get(unit);
+                    continue;
+                }
+                units.add(unit);
+                if (unit.stack.amount > 0 && unit.stack.item != item)
+                {
+                    returnUnits.add(unit);
+                }
             }
 
-            if (unit.within(target, GetMineRange()))
-            {
-                target = null;
-                callback.run();
-            }
+            delayedUnits.clear();
         }
 
-        public void MovingToCore(Runnable callback)
+        public void BoostUnits()
         {
-            if (target == null || core == null || target != new Vec2(core.x, core.y))
+            Seq<Integer> unitIds = new Seq<>();
+
+            for (Unit unit : units)
             {
-                unit.mineTile = null;
-                core = unit.closestCore();
-                target = new Vec2(core.x, core.y);
-                GoTo(target);
+                if (!unit.isFlying() && !unit.type.flying) 
+                {
+                    unitIds.add(unit.id);
+                }
             }
 
-            if (unit.within(target, GetRange()))
+            if (unitIds.size == 0) return;
+            requestExecutor.AddRequest(new IUnitsRequest.UnitCommandRequest(ArrayUtils.ToArray(unitIds), UnitCommand.boostCommand));
+        }
+
+        public float GetRelativeCompletion()
+        {
+            int globalCapacity = 0;
+            int globalFilling = 0;
+            for (Unit unit : units)
             {
-                target = null;
-                callback.run();
+                globalCapacity += unit.type.itemCapacity;
+                globalFilling += unit.stack.amount;
             }
-        }
 
-        public void TransferItemsToCore()
-        {
-            if (core == null || unit.stack.amount == 0 || !unit.within(core, GetRange())) return;
+            float itemsMined = 0;
+            if (globalFilling > this.itemsMined) itemsMined = globalFilling;
+            else itemsMined = this.itemsMined;
 
-            int accepted = core.acceptStack(unit.item(), unit.stack.amount, unit);
-            Call.transferItemTo(unit, unit.item(), accepted, unit.x, unit.y, core);
-            if (unit.stack.amount > 0)
-            {
-                Call.dropItem(0);
-            }
-        }
-
-        public void GoTo(Vec2 pos)
-        {
-            if (!unit.type.flying && !unit.isFlying())
-            {
-                Call.setUnitCommand(Vars.player, new int[] {unit.id}, UnitCommand.boostCommand);
-            } 
-            Call.commandUnits(Vars.player, new int[] {unit.id}, null, null, pos);
-        }
-
-        public int GetCapacity()
-        {
-            return unit.type.itemCapacity - 1;
-        }
-
-        public float GetRange()
-        {
-            return unit.type.range / 1.8f;
-        }
-        
-        public float GetMineRange()
-        {
-            return unit.type.mineRange / 1.8f;
+            return itemsMined / globalCapacity;
         }
     }
-}
+}*/

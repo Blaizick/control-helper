@@ -4,24 +4,29 @@ import static arc.Core.bundle;
 import static arc.Core.graphics;
 import static arc.Core.input;
 import static arc.Core.settings;
+import static controlhelper.ControlHelper.requestExecutor;
 
 import java.util.LinkedList;
 
 import arc.Events;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
+import controlhelper.Utils.GeneralUtils;
+import controlhelper.core.requestexecutor.IUnitsRequest;
 import controlhelper.inputs.Keybind;
 import mindustry.Vars;
 import mindustry.game.EventType.*;
-import mindustry.gen.Building;
-import mindustry.gen.Call;
-import mindustry.gen.Groups;
-import mindustry.gen.Teamc;
 import mindustry.gen.Unit;
 
 public class AdvancedAttacker 
 {
     protected float curExecuteDelay = 0; 
+
+    public Vec2 target = null;
+    public Seq<Unit> unitsArrived = new Seq<>();
+
+    protected boolean spamming = false;
+    public float targetUnitsAtPoint = 0.8f;
 
     public void Init()
     {
@@ -45,19 +50,37 @@ public class AdvancedAttacker
                 ExecuteNextRequest();
                 curExecuteDelay = GetUnitsAttackDelay();
             }
+
+            if (target != null && attackRequests.size() == 0 && unitsArrived.size > 0 && !spamming)
+            {
+                spamming = true;
+            }
         });
 
         Events.on(UnitControlEvent.class, e -> 
         {
-            for (AttackRequest attackRequest : attackRequests) 
+            attackRequests.removeIf(i -> GeneralUtils.GetUnitByIds(i.unitIds).contains(e.unit));
+            unitsArrived.remove(e.unit);
+
+            if (attackRequests.size() == 0 && unitsArrived.size == 0)
             {
-                if (attackRequest.GetUnits().contains(e.unit))
-                {
-                    attackRequests.remove(attackRequest);
-                }    
+                target = null;
             }
         });
     }
+
+    
+    public void SpamRequest()
+    {
+        if (unitsArrived.size == 0) return;
+
+        requestExecutor.AddPriorityRequest(new IUnitsRequest.MoveRequest(GeneralUtils.GetUnitIds(unitsArrived), null, null, target, () -> 
+        {
+            SpamRequest();
+        }));
+    }
+
+
 
     private float GetUnitsAttackDelay()
     {
@@ -71,7 +94,13 @@ public class AdvancedAttacker
 
         for (Unit unit : Vars.control.input.selectedUnits) 
         {
-            attackRequests.removeIf(i -> i.GetUnits().contains(unit));
+            attackRequests.removeIf(i -> GeneralUtils.GetUnitByIds(i.unitIds).contains(unit));
+            unitsArrived.remove(unit);
+        }
+
+        if (attackRequests.size() == 0 && unitsArrived.size == 0)
+        {
+            target = null;
         }
     }
 
@@ -80,73 +109,24 @@ public class AdvancedAttacker
         if (!Vars.control.input.commandMode || Vars.control.input.selectedUnits.isEmpty()) return;
 
         attackRequests.clear();
-
-        Vec2 target = input.mouseWorld().cpy();
-        Teamc attack = Vars.world.buildWorld(target.x, target.y);
-
-        if (attack == null || attack.team() == Vars.player.team()) 
-        {
-            attack = Vars.control.input.selectedEnemyUnit(0, 0);
-        }
+        target = input.mouseWorld().cpy();
 
         for (int i = 0; i < Vars.control.input.selectedUnits.size; i++) 
         {
             int id = Vars.control.input.selectedUnits.get(i).id;
             int[] ids = new int[] { id };
-            attackRequests.add(new AttackRequest(ids, target, attack));
+            attackRequests.add(new IUnitsRequest.MoveRequest(ids, null, null, target));
         }
     }
 
 
-    public LinkedList<AttackRequest> attackRequests = new LinkedList<>();
+    public LinkedList<IUnitsRequest.MoveRequest> attackRequests = new LinkedList<>();
 
     public void ExecuteNextRequest()
     {
         if (attackRequests.isEmpty()) return;
-        AttackRequest request = attackRequests.pop();
+        IUnitsRequest request = attackRequests.pop();
         if (request == null) return;
-        request.Execute();
-    }
-
-
-    public class AttackRequest
-    {
-        public int[] ids;
-        public Vec2 target;
-        public Teamc attack;
-
-        public AttackRequest(int[] ids, Vec2 target, Teamc attack) 
-        {
-            this.ids = ids;
-            this.target = target;
-            this.attack = attack;
-        }
-
-        public void Execute() 
-        {
-            if (attack != null)
-            {
-                Events.fire(Trigger.unitCommandAttack);
-            }
-
-            Building attackedBuilding = null;
-            Unit attackedUnit = null;
-            if (attack instanceof Building) attackedBuilding = (Building) attack;
-            else if (attack instanceof Unit) attackedUnit = (Unit) attack;
-
-            Call.commandUnits(Vars.player, ids, attackedBuilding, attackedUnit, target);
-        }
-
-        public Seq<Unit> GetUnits()
-        {
-            Seq<Unit> units = new Seq<>();
-
-            for (int id : ids) 
-            {
-                units.add(Groups.unit.getByID(id));
-            }
-
-            return units;
-        }
+        requestExecutor.AddPriorityRequest(request);
     }
 }

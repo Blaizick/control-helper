@@ -1,4 +1,5 @@
-package controlhelper.ui;
+package controlhelper.ui.windows;
+/*package controlhelper.ui;
 
 import controlhelper.ui.elements.CheckBoxMod;
 import controlhelper.ui.elements.WindowMod;
@@ -32,16 +33,8 @@ public class UnitMinerWindow extends WindowMod
     @Override
     public void InitCont() 
     {
+         
         super.InitCont();
-/* 
-        cont.add(new CheckBoxMod("monos-mine", "" + Iconc.unitMono, false, checked ->
-        {
-            if (checked) unitMiner.AddUnitType(UnitTypes.mono);
-            else unitMiner.RemoveUnitType(UnitTypes.mono);
-            unitMiner.RefreshMining();
-        })).size(buttonSize);
-
-        */
         umCheckBoxes.add(cont.add(new CheckBoxMod("polys-mine", "" + Iconc.unitPoly, false, checked ->
         {
             if (checked) unitMiner.AddUnitType(UnitTypes.poly);
@@ -66,6 +59,7 @@ public class UnitMinerWindow extends WindowMod
             else unitMiner.RemoveUnitType(UnitTypes.quasar);
             unitMiner.RefreshMining();
         })).size(buttonSize).get());
+        
     }
 
     public void UncheckUMCheckBoxes()
@@ -76,3 +70,4 @@ public class UnitMinerWindow extends WindowMod
         }
     }
 }
+*/
