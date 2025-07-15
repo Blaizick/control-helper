@@ -10,7 +10,6 @@ public enum Keybind
     //region bindings
 
     split(KeyCode.j),
-    advancedAttack(KeyCode.k),
     attack(KeyCode.mouseRight, false),
     splitAdd1(KeyCode.unset),
     splitAdd2(KeyCode.unset),

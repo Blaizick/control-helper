@@ -60,17 +60,11 @@ public class BuildingsDepowerer
 
     public void PowerBuild(Building building)
     {
-        Seq<Building> buildings = new Seq<>();
-
-        Vars.indexer.eachBlock(Vars.player.team(), building.x, building.y , GetMaxNodeRange(), ez -> true, b -> 
+        PowerNode.getNodeLinks(building.tile, building.block, building.team, other -> 
         {
-            if (nodeTypes.contains(b.block) && (b.block instanceof PowerNode))
-            {
-                if (building.power.links.contains(b.pos()) || buildings.contains(b)) return;
-                buildings.add(b.power.graph.all);
-                requestExecutor.AddRequest(new IRequest.TileConfig(b, building.pos()));
-                return;
-            }
+            if (building.power.links.contains(other.pos())) return;
+            if (!nodeTypes.contains(other.block)) return;
+            requestExecutor.AddRequest(new IRequest.TileConfig(other, building.pos()));
         });
     }
 
@@ -83,6 +77,6 @@ public class BuildingsDepowerer
             PowerNode node = (PowerNode)block;
             if (node.laserRange > max) max = node.laserRange;
         }
-        return max;
+        return max * Vars.tilesize;
     }
 }

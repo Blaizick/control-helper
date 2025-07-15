@@ -66,7 +66,7 @@ public interface IRequest
         {
             if (building == null || building.dead) return;
             Call.tileConfig(Vars.player, building, value);
-            if (callback != null) return;
+            if (callback != null) callback.run();
         }
     }
 }

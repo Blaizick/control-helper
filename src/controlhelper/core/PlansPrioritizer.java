@@ -1,5 +1,7 @@
 package controlhelper.core;
 
+import static arc.Core.settings;
+
 import arc.Events;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
@@ -28,6 +30,8 @@ public class PlansPrioritizer
 
         Events.run(Trigger.update, () -> 
         {
+            if (!IsEnabled()) return;
+            
             prioritizedPlans.removeAll(plan -> plan == null || (plan.build() != null && !(plan.build() instanceof ConstructBuild)) || plan.block == Blocks.air);
 
             Seq<BuildPlan> prioritize = new Seq<>();
@@ -52,6 +56,12 @@ public class PlansPrioritizer
             }
         });
     }
+
+    public boolean IsEnabled()
+    {
+        return settings.getBool("prioritizePlans");
+    }
+
 
     public interface PriorityFilter
     {

@@ -1,6 +1,5 @@
 package controlhelper;
 
-import controlhelper.core.AdvancedAttacker;
 import controlhelper.core.DrillsValidator;
 import controlhelper.core.HandMiner;
 import controlhelper.core.PlansPrioritizer;
@@ -30,7 +29,6 @@ public class ControlHelper extends Mod
     public static RequestExecutor requestExecutor;
 
     public static UnitSplitter unitSplitter;
-    public static AdvancedAttacker advancedAttacker;
     //public static UnitMiner unitMiner;
     public static DrillsValidator drillsValidator;
     public static HandMiner handMiner;
@@ -54,7 +52,6 @@ public class ControlHelper extends Mod
         requestExecutor = new RequestExecutor();
 
         unitSplitter = new UnitSplitter();
-        advancedAttacker = new AdvancedAttacker();
         //unitMiner = new UnitMiner();
         drillsValidator = new DrillsValidator();
         plansSaver = new PlansSaver();
@@ -78,7 +75,6 @@ public class ControlHelper extends Mod
         requestExecutor.Init();
 
         unitSplitter.Init();
-        advancedAttacker.Init();
         //unitMiner.Init();
         drillsValidator.Init();
         plansSaver.Init();
@@ -102,9 +98,8 @@ public class ControlHelper extends Mod
     //* Сделать, чтобы можно было сбросить хоткей
     //* Приоритетная установка турелей и тушилок
     //* Пофиксить фигню, что конвееры строятся первыми при включенном removeExcessDrills
-    //* ezezezeezee
-
-    //todo Обновить RebindOverlay
+    //* Обновить RebindOverlay
+    
     //todo Удаление блоков в огне и потом их перестройка
     //todo Отключение всех заводов, чьих производимых ресурсов больше 1500
 }
