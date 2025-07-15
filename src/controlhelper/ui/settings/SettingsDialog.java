@@ -32,7 +32,6 @@ public class SettingsDialog extends BaseDialog
         table.checkPref("ignoreSupportUnits", true);
         table.checkPref("showControlHelperWindow", false);
         table.checkPref("prioritizePlans", true);
-        table.sliderPref("unitsAttackDelay", 50, 10, 300, 10, i -> String.valueOf(i) + "ms.");
 
         table.row();
         table.button(bundle.get("settings.controlsButton.label"), () ->
