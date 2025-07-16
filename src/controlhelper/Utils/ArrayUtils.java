@@ -3,9 +3,32 @@ package controlhelper.Utils;
 import java.lang.reflect.Array;
 
 import arc.struct.Seq;
+import arc.struct.Queue;
 
 public class ArrayUtils 
 {
+    public static <T> boolean AreSame(Queue<T> a, Queue<T>b)
+    {
+        if (a == null && b == null) return true;
+        if (a == null || b == null) return false;
+        if (a.size != b.size) return false;
+
+
+        for (int i = 0; i < a.size; i++)
+        {
+            if (a.get(i) != b.get(i)) return false;
+        }
+        return true;
+    }
+
+    public static <T> Queue<T> Copy(Queue<T> a)
+    {
+        if (a == null) return null;
+        Queue<T> out = new Queue<>();
+        for (T i : a)  out.add(i);
+        return out;
+    }
+
     public static <T> T[] Concatenate(T[] a, T[] b)
     {
         if (a == null || b == null) return null;

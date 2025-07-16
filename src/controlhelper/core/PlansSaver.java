@@ -2,6 +2,7 @@ package controlhelper.core;
 
 import arc.Events;
 import arc.struct.Queue;
+import controlhelper.Utils.ArrayUtils;
 import mindustry.Vars;
 import mindustry.entities.units.BuildPlan;
 import mindustry.game.EventType.Trigger;
@@ -17,6 +18,9 @@ public class PlansSaver
 
     public boolean enabled;
 
+    public long maxResetTime = 2000;
+    protected long resetTime = 0;
+
     public void Init()
     {
         Events.run(Trigger.update, () -> 
@@ -27,19 +31,24 @@ public class PlansSaver
             if (input.keyTap(Binding.respawn) || Vars.player.dead())
             {
                 if (resetPlans == true) return;
-                if (Vars.player.unit().plans.size == 0) return;
+                if (plans.size == 0) return;
                 resetPlans = true;
-
-                plans.clear();
-                Vars.player.unit().plans.each(i -> plans.add(i));
+                resetTime = System.currentTimeMillis();
             }
 
-            if (resetPlans && Vars.player.unit().plans.size == 0)
+            if (resetPlans && (Vars.player.unit().plans.size == 0 || !ArrayUtils.AreSame(Vars.player.unit().plans, plans)))
             {
+                resetPlans = false;
+                if (System.currentTimeMillis() - resetTime > maxResetTime) return;
+
                 Queue<BuildPlan> newPlans = new Queue<>();
                 plans.each(i -> newPlans.add(i));
                 Vars.player.unit().plans = newPlans;
-                resetPlans = false;
+            }
+
+            if (!resetPlans)
+            {
+                plans = ArrayUtils.Copy(Vars.player.unit().plans);
             }
         });
     }
