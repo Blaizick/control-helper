@@ -11,6 +11,7 @@ public enum Keybind
 
     split(KeyCode.j),
     attack(KeyCode.mouseRight, false),
+    rebuildExtinguished(KeyCode.o),
     splitAdd1(KeyCode.unset),
     splitAdd2(KeyCode.unset),
     splitAdd3(KeyCode.unset);

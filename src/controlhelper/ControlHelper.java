@@ -1,6 +1,7 @@
 package controlhelper;
 
 import controlhelper.core.DrillsValidator;
+import controlhelper.core.ExtinguishedRebuilder;
 import controlhelper.core.HandMiner;
 import controlhelper.core.PlansPrioritizer;
 import controlhelper.core.PlansSaver;
@@ -37,6 +38,7 @@ public class ControlHelper extends Mod
     public static FactoriesDepowerer factoriesDepowerer;
     public static ProducersDepowerer producersDepowerer;
     public static PlansPrioritizer plansPrioritizer;
+    public static ExtinguishedRebuilder extinguishedRebuilder;
 
     //public static UnitMinerWindow unitMinerWindow;
     public static ControlHelperWindow controlHelperWindow;
@@ -60,6 +62,7 @@ public class ControlHelper extends Mod
         factoriesDepowerer = new FactoriesDepowerer();
         producersDepowerer = new ProducersDepowerer();
         plansPrioritizer = new PlansPrioritizer();
+        extinguishedRebuilder = new ExtinguishedRebuilder();
 
         //unitMinerWindow = new UnitMinerWindow();
         controlHelperWindow = new ControlHelperWindow();
@@ -81,6 +84,7 @@ public class ControlHelper extends Mod
         handMiner.Init();
         supportsIgnorer.Init();
         plansPrioritizer.Init();
+        extinguishedRebuilder.Init();
 
         //unitMinerWindow.Init();
         //unitMinerWindow.Build();
@@ -88,7 +92,6 @@ public class ControlHelper extends Mod
         controlHelperWindow.Build();
     }
 
-    //! Проверка на то идёт ли вода в блок тушилки
 
     //* Улучшить автовин
     //* Выделение юнитов без саппортов
@@ -100,6 +103,7 @@ public class ControlHelper extends Mod
     //* Обновить RebindOverlay
     //* Соединение разьеденённой энергосети после отключение заводов юнитов
     
-    //todo Удаление блоков в огне и потом их перестройка
+    //* Проверка на то идёт ли вода в блок тушилки
+    //* todo Удаление блоков в огне и потом их перестройка
     //todo Отключение всех заводов, чьих производимых ресурсов больше 1500
 }

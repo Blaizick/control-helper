@@ -3,14 +3,17 @@ package controlhelper.core;
 import static arc.Core.settings;
 
 import arc.Events;
+import arc.math.geom.Geometry;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
+import arc.util.Log;
 import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.entities.Fires;
 import mindustry.entities.Units;
 import mindustry.entities.units.BuildPlan;
 import mindustry.game.EventType.Trigger;
+import mindustry.gen.Building;
 import mindustry.world.Block;
 import mindustry.world.blocks.ConstructBlock.ConstructBuild;
 import mindustry.world.blocks.defense.turrets.LiquidTurret;
@@ -25,6 +28,7 @@ public class PlansPrioritizer
     {
         filters.add(new PriorityFilter[]
         {
+            new LiquidsFilter(),
             new TurretsFilter()
         });
 
@@ -68,15 +72,18 @@ public class PlansPrioritizer
         public boolean ShouldPreoritize(BuildPlan plan); 
     }
 
-    //todo Добавить проверку на то, ведёт ли трубопровод в тушилку
     public class LiquidsFilter implements PriorityFilter
     {
-        public Seq<Block> distributionBlocks = new Seq<>(new Block[]
+        public Seq<Block> pumps = new Seq<>(new Block[]
         {
             Blocks.mechanicalPump,
             Blocks.rotaryPump,
             Blocks.impulsePump,
-            Blocks.waterExtractor,
+            Blocks.waterExtractor
+        });
+
+        public Seq<Block> distributionBlocks = new Seq<>(new Block[]
+        {
             Blocks.conduit,
             Blocks.pulseConduit,
             Blocks.platedConduit,
@@ -95,9 +102,15 @@ public class PlansPrioritizer
         public boolean ShouldPreoritize(BuildPlan plan) 
         {
             if (plan.breaking) return false;
-            if (!distributionBlocks.contains(plan.block) && !stewerBlocks.contains(plan.block)) return false;
+            
+            if (!stewerBlocks.contains(plan.block)) return true;
             if (!IsFireInRange(new Vec2(plan.getX(), plan.getY()), GetMaxRange())) return false;
-            return true;
+
+            _BuildPlan buildPlan = new _BuildPlan();
+            buildPlan.plan = plan;
+            if (!LeadsToStewer(buildPlan)) return false;
+            Log.info(plan.block.name);
+            return false;
         }
 
         public boolean IsFireInRange(Vec2 pos, float range)
@@ -126,45 +139,146 @@ public class PlansPrioritizer
             return maxRange * 1.5f;
         }
 
-
-        /*
-        public Building GetConduitOut(Building build)
+        
+        public boolean LeadsToStewer(_BuildPlan buildPlan)
         {
-            int dx = Geometry.d4x(build.rotation);
-            int dy = Geometry.d4y(build.rotation);
+            if (buildPlan.IsNull()) return false;
+            if (IsPump(buildPlan))
+            {
+                Seq<_BuildPlan> outputs = GetPumpOutputs(buildPlan);
+                for (_BuildPlan output : outputs)
+                {
+                    if (LeadsToStewer(output)) return true;
+                }
+                return false;
+            }
 
-            Tile outTile = Vars.world.tile(build.tileX() + dx, build.tileY() + dy);
-            if (outTile == null || outTile.build == null) return null;
-            return outTile.build;
+            _BuildPlan cur = buildPlan;
+            while (IsDistribution(cur))
+            {
+                cur = GetNext(cur);
+                if (cur.IsNull()) return false;
+            }
+
+            return IsStewer(cur);
         }
 
-        public Seq<Building> GetPumpOutputs(Building build)
+        public boolean IsPump(_BuildPlan buildPlan)
         {
-            int size = build.block.size;
-            Liquid liquid = build.liquids.current();
+            if (buildPlan.plan != null && pumps.contains(buildPlan.plan.block)) return true;
+            if (buildPlan.build != null && pumps.contains(buildPlan.build.block)) return true;
+            return false;
+        }
 
-            Seq<Building> outputs = new Seq<>();
+        public boolean IsDistribution(_BuildPlan buildPlan)
+        {
+            if (buildPlan.plan != null && distributionBlocks.contains(buildPlan.plan.block)) return true;
+            if (buildPlan.build != null && distributionBlocks.contains(buildPlan.build.block)) return true;
+            return false;
+        }
 
-            for (int dx = -size / 2; dx <= size / 2; dx++)
+        public boolean IsStewer(_BuildPlan buildPlan)
+        {
+            if (buildPlan.plan != null && stewerBlocks.contains(buildPlan.plan.block)) return true;
+            if (buildPlan.build != null && stewerBlocks.contains(buildPlan.build.block)) return true;
+            return false;
+        }
+
+        public _BuildPlan GetNext(_BuildPlan buildPlan)
+        {
+            int x = 0, y = 0;
+            int trns = 0;
+            int rot = 0;
+            if (buildPlan.plan != null)
             {
-                for (int dy = -size / 2; dy <= size / 2; dy++)
+                trns = buildPlan.plan.block.size / 2;
+                rot = buildPlan.plan.rotation;
+                x = buildPlan.plan.x;
+                y = buildPlan.plan.y;
+            } 
+            else if (buildPlan.build != null)
+            {
+                trns = buildPlan.build.block.size / 2;
+                rot = buildPlan.build.rotation;
+                x = buildPlan.build.tileX();
+                y = buildPlan.build.tileY();
+            }
+            else
+            {
+                return null;
+            }
+
+            int nextX = x + (Geometry.d4(rot).x * trns);
+            int nextY = y + (Geometry.d4(rot).y * trns);
+            return GetAt(nextX, nextY);
+        }
+
+        public Seq<_BuildPlan> GetPumpOutputs(_BuildPlan buildPlan)
+        {
+            if (buildPlan.IsNull()) return null;
+
+            int trns = 0;
+            int _x = 0, _y = 0;
+            if (buildPlan.plan != null)
+            {
+                trns = buildPlan.plan.block.size / 2;
+                _x = buildPlan.plan.x;
+                _y = buildPlan.plan.y;
+            } 
+            else if (buildPlan.build != null)
+            {
+                trns = buildPlan.build.block.size / 2;
+                _x = buildPlan.build.tileX();
+                _y = buildPlan.build.tileY();
+            }
+
+            Seq<_BuildPlan> out = new Seq<>();
+            for (int x = _x - trns - 1; x <= _x + trns + 1; x++)
+            {
+                for (int y = _y - trns - 1; y <= _y + trns + 1; y++)
                 {
-                    if (dx >= 0 && dx < size && dy >= 0 && dy < size) continue;
+                    if (x <= _x + trns && x >= _x - trns && y <= _y + trns && y >= _y - trns) continue;
 
-                    int tx = build.tileX() + dx;
-                    int ty = build.tileY() + dy;
-
-                    Tile neighbor = Vars.world.tile(tx, ty);
-                    if (neighbor == null || neighbor.build == null) continue;
-
-                    Building other = neighbor.build;
-                    if (other.acceptLiquid(other, liquid))
+                    _BuildPlan cur = GetAt(x, y);
+                    if (cur.IsNull()) continue;
+                    if (IsDistribution(cur) || IsStewer(cur)) out.add(cur); 
                 }
             }
+
+            return out;
         }
 
-        */
-        //Здесь должна была быть проверка, на то ведёт ли путь к тушилке, но нужно проверять и планы и мир
+        public _BuildPlan GetAt(Vec2 pos)
+        {
+            return GetAt((int)pos.x, (int)pos.y);
+        }
+
+        public _BuildPlan GetAt(int x, int y)
+        {
+            _BuildPlan out = new _BuildPlan();
+            out.build = Vars.world.build(x, y);
+            for (BuildPlan plan : Vars.player.unit().plans)
+            {
+                if (plan.within(x, y, 0.1f))
+                {
+                    out.plan = plan;
+                    break;
+                }
+            }
+            
+            return out;
+        }
+
+        public class _BuildPlan
+        {
+            public BuildPlan plan;
+            public Building build;
+
+            public boolean IsNull()
+            {
+                return plan == null && build == null;
+            }
+        }
     }
 
     public class TurretsFilter implements PriorityFilter
