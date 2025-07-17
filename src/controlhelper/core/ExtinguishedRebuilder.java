@@ -9,7 +9,6 @@ import arc.graphics.g2d.Lines;
 import arc.math.Mathf;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
-import arc.util.Log;
 import controlhelper.inputs.Keybind;
 import mindustry.Vars;
 import mindustry.content.Blocks;
@@ -18,7 +17,6 @@ import mindustry.entities.Fires;
 import mindustry.entities.units.BuildPlan;
 import mindustry.game.EventType.Trigger;
 import mindustry.gen.Building;
-import mindustry.gen.Fire;
 import mindustry.graphics.Layer;
 import mindustry.input.Placement;
 import mindustry.input.Placement.NormalizeDrawResult;
@@ -28,13 +26,16 @@ import mindustry.world.Tile;
 
 public class ExtinguishedRebuilder
 {
-    public boolean selection = false;
-    public int selectionX, selectionY;
-    public int cursorX, cursorY;
-    public Color col1, col2;
+    public int firstX, firstY;
+    public int secondX, secondY;
 
-    public boolean updateSelection = false;
-    public Seq<BuildPlan> brokenBlocks = new Seq<>();
+    public boolean selection = false;
+    
+    public Color col1, col2;
+    public int maxLength = Integer.MAX_VALUE;
+
+    public Seq<Selection> selections = new Seq<>();
+
 
     public ExtinguishedRebuilder()
     {
@@ -53,126 +54,70 @@ public class ExtinguishedRebuilder
             if (!Vars.state.isGame() || Vars.control.input.commandMode) 
             {
                 selection = false;
-                updateSelection = false;
+                selections.clear();
                 return;
             }
 
             if (Keybind.rebuildExtinguished.KeyDown())
             {
-                if (updateSelection) RebuildBrokenBlocks();
-
-                cursorX = TileX(Core.input.mouseX());
-                cursorY = TileY(Core.input.mouseY());
+                secondX = TileX(Core.input.mouseX());
+                secondY = TileY(Core.input.mouseY());
                 if (!selection) 
                 {
-                    selectionX = cursorX;
-                    selectionY = cursorY;
-                    brokenBlocks.clear();
+                    firstX = secondX;
+                    firstY = secondY;
                 }
 
                 selection = true;
-                updateSelection = false;
             }
 
             if (Keybind.rebuildExtinguished.KeyUp())
             {
-                cursorX = TileX(Core.input.mouseX());
-                cursorY = TileY(Core.input.mouseY());
+                secondX = TileX(Core.input.mouseX());
+                secondY = TileY(Core.input.mouseY());
 
-                updateSelection = true;
+                selections.add(new Selection(firstX, firstY, secondX, secondY));
                 selection = false;
             }
 
-            if (updateSelection) UpdateSelection();
+            UpdateSelections();
         });
     }
 
-
-    public void UpdateSelection()
+/* 
+    public Seq<Selection> CheckSelectionsOverlap(Selection a, Selection b)
     {
-        Seq<Tile> fires = GetFiresInSelection();
-        if (fires == null || fires.size == 0) 
+        NormalizeResult resA = Placement.normalizeArea(a.x1, a.y1, a.x2, a.y2, 0, false, maxLength);
+        NormalizeResult resB = Placement.normalizeArea(b.x1, b.y1, b.x2, b.y2, 0, false, maxLength);
+
+        if (resA.x <= resB.x && resA.x2 >= resB.x2 && resA.y <= resB.y && resA.y2 >= resB.y2)
         {
-            RebuildBrokenBlocks();
-            updateSelection = false;
-            return;
+            a.brokenBlocks.addAll(b.brokenBlocks);
+            return new Seq<>(new Selection[] {a});
         }
 
-        Seq<Building> builds = GetBuildings(fires);
-        for (Building build : builds) 
+        if (resA.x >= resB.x && resA.x2 <= resB.x2 && resA.y >= resB.y && resA.y2 <= resB.y2)
         {
-            if (ContainsBreakPlan(build)) continue;
-            brokenBlocks.add(new BuildPlan(build.tileX(), build.tileY(), build.rotation, build.block, build.config()));
-            Vars.control.input.tryBreakBlock(build.tileX(), build.tileY());
+            b.brokenBlocks.addAll(a.brokenBlocks);
+            return new Seq<>(new Selection[] {b});
         }
+
+        if (resA.x >= resB.x2 || resA.x2 <= resB.x || resA.y >= resB.y2 || resA.y2 <= resB.y)
+        {
+            return new Seq<>(new Selection[] {a, b});
+        }
+
     }
+*/
 
-    public void RebuildBrokenBlocks()
+    public void UpdateSelections()
     {
-        for (BuildPlan plan : brokenBlocks) 
+        for (Selection sel : selections) 
         {
-            boolean found = false;
-            for (BuildPlan p : Vars.player.unit().plans) 
-            {
-                if (!p.breaking) continue;
-                if (p.build() != null && p.tile().x == plan.x && p.tile().y == plan.x && p.block == plan.block)
-                {
-                    found = true;
-                    Vars.player.unit().plans.remove(p);
-                    break;
-                }
-            }            
-            if (found) continue;
-            Vars.player.unit().addBuild(plan);
-        }
-    }
-
-    public boolean ContainsBreakPlan(Building build)
-    {
-        for (BuildPlan plan : Vars.player.unit().plans) 
-        {
-            if (!plan.breaking) continue;
-            if (plan.build() != null && plan.build().pos() == build.pos()) return true;
-        }
-        return false;
-    }
-
-    public Seq<Building> GetBuildings(Seq<Tile> tiles)
-    {
-        Seq<Building> buildings = new Seq<>();
-        for (Tile tile : tiles) 
-        {
-            if (tile.build == null) continue;
-            buildings.add(tile.build);
-        }
-        return buildings;
-    }
-
-    public Seq<Tile> GetFiresInSelection()
-    {
-        int x1 = Mathf.round(selectionX);
-        int x2 = Mathf.round(cursorX);
-        int y1 = Mathf.round(selectionY);
-        int y2 = Mathf.round(cursorY);
-        int maxLength = Integer.MAX_VALUE;
-
-        NormalizeResult result = Placement.normalizeArea(x1, y1, x2, y2, 0, false, maxLength);
-        Seq<Tile> fires = new Seq<>();
-        for (int x = 0; x <= Math.abs(result.x2 - result.x); x++)
-        {
-            for (int y = 0; y <= Math.abs(result.y2 - result.y); y++)
-            {
-                int wx = x1 + x * Mathf.sign(x2 - x1);
-                int wy = y1 + y * Mathf.sign(y2 - y1);
-
-                if (!Fires.has(wx, wy)) continue;
-
-                Tile tile = Vars.world.tile(wx, wy);
-                if (tile != null) fires.add(tile);
-            }
+            sel.Update();
         }
 
-        return fires;
+        selections.remove(sel -> sel.finished);
     }
 
 
@@ -198,10 +143,10 @@ public class ExtinguishedRebuilder
 
     public void DrawSelection()
     {
-        int x1 = Mathf.round(selectionX);
-        int x2 = Mathf.round(cursorX);
-        int y1 = Mathf.round(selectionY);
-        int y2 = Mathf.round(cursorY);
+        int x1 = Mathf.round(firstX);
+        int x2 = Mathf.round(secondX);
+        int y1 = Mathf.round(firstY);
+        int y2 = Mathf.round(secondY);
         int maxLength = Integer.MAX_VALUE;
         NormalizeDrawResult result = Placement.normalizeDrawArea(Blocks.air, x1, y1, x2, y2, false, maxLength, 1f);
 
@@ -226,5 +171,105 @@ public class ExtinguishedRebuilder
         font.getData().setScale(1);
         font.setUseIntegerPositions(ints);
         Draw.z(z);
+    }
+
+
+    public class Selection
+    {
+        public int x1, y1;
+        public int x2, y2;
+
+        public Seq<BuildPlan> brokenBlocks = new Seq<>();
+        public boolean finished = false;
+
+        public Selection(int x1, int y1, int x2, int y2)
+        {
+            this.x1 = x1;
+            this.y1 = y1;
+            this.x2 = x2;
+            this.y2 = y2;
+        }
+
+        public void Update()
+        {
+            Seq<Tile> fires = GetFires();
+            if (fires == null || fires.size == 0) 
+            {
+                RebuildBrokenBlocks();
+                finished = true;
+                return;
+            }
+
+            Seq<Building> builds = GetBuildingsOnTiles(fires);
+            for (Building build : builds) 
+            {
+                if (IsBreakPlannedOnPos(new Vec2(build.x, build.y))) continue;
+                brokenBlocks.add(new BuildPlan(build.tileX(), build.tileY(), build.rotation, build.block, build.config()));
+                Vars.control.input.tryBreakBlock(build.tileX(), build.tileY());
+            }
+        }
+
+        public Seq<Tile> GetFires()
+        {
+            NormalizeResult result = Placement.normalizeArea(x1, y1, x2, y2, 0, false, maxLength);
+            Seq<Tile> fires = new Seq<>();
+            for (int x = 0; x <= Math.abs(result.x2 - result.x); x++)
+            {
+                for (int y = 0; y <= Math.abs(result.y2 - result.y); y++)
+                {
+                    int wx = x1 + x * Mathf.sign(x2 - x1);
+                    int wy = y1 + y * Mathf.sign(y2 - y1);
+
+                    if (!Fires.has(wx, wy)) continue;
+
+                    Tile tile = Vars.world.tile(wx, wy);
+                    if (tile != null) fires.add(tile);
+                }
+            }
+
+            return fires;
+        }
+
+        public void RebuildBrokenBlocks()
+        {
+            for (BuildPlan plan : brokenBlocks) 
+            {
+                boolean found = false;
+                for (BuildPlan p : Vars.player.unit().plans) 
+                {
+                    if (!p.breaking) continue;
+                    if (p.build() != null && p.tile().x == plan.x && p.tile().y == plan.x && p.block == plan.block)
+                    {
+                        found = true;
+                        Vars.player.unit().plans.remove(p);
+                        break;
+                    }
+                }            
+                if (found) continue;
+                Vars.player.unit().addBuild(plan);
+            }
+        }
+    
+    
+        public boolean IsBreakPlannedOnPos(Vec2 pos)
+        {
+            for (BuildPlan plan : Vars.player.unit().plans) 
+            {
+                if (!plan.breaking) continue;
+                if (plan.build() != null && plan.build().within(pos, 0.1f)) return true;
+            }
+            return false;
+        }
+
+        public Seq<Building> GetBuildingsOnTiles(Seq<Tile> tiles)
+        {
+            Seq<Building> buildings = new Seq<>();
+            for (Tile tile : tiles) 
+            {
+                if (tile.build == null) continue;
+                buildings.add(tile.build);
+            }
+            return buildings;
+        }
     }
 }

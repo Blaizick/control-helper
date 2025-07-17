@@ -6,7 +6,6 @@ import arc.Events;
 import arc.math.geom.Geometry;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
-import arc.util.Log;
 import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.entities.Fires;
@@ -109,7 +108,6 @@ public class PlansPrioritizer
             _BuildPlan buildPlan = new _BuildPlan();
             buildPlan.plan = plan;
             if (!LeadsToStewer(buildPlan)) return false;
-            Log.info(plan.block.name);
             return false;
         }
 
