@@ -29,6 +29,7 @@ public class HandMiner
             if (!Vars.player.within(Vars.player.unit().closestCore(), Vars.player.unit().range() - 1f)) return;
             boolean infinite = Vars.state.rules.infiniteResources || Vars.player.unit().team.rules().infiniteResources;
             if (Vars.player.unit().core() == null && !infinite) return;
+            if (Vars.player.unit().plans == null || Vars.player.unit().plans.size == 0) return;
             
             if (Core.input.keyDown(Binding.pause_building))
             {
@@ -100,6 +101,7 @@ public class HandMiner
 
     public int GetNeededAmount(Item targetItem, BuildPlan plan)
     {
+        if (plan == null || plan.block == null) return 0;
         var coreAmount = GetCoreAmount(targetItem);
         int cost = 0;
         var requirements = plan.block.requirements;
