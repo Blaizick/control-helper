@@ -78,6 +78,7 @@ public class DrillsValidator
 
             Drill drill = (Drill)plan.block;
             Item returnItem = GetDrillReturnItem(drill, plan.tile());
+            if (returnItem == null) continue;
             int id = drills.indexOf(i -> i.returnItem == returnItem);
             if (id == -1)
             {
@@ -117,6 +118,8 @@ public class DrillsValidator
 
     public Item GetDrillReturnItem(Drill drill, Tile tile)
     {
+        if (tile == null || drill == null) return null;
+
         ObjectIntMap<Item> oreCount = new ObjectIntMap<>();
         Seq<Item> itemArray = new Seq<>();
 
@@ -133,6 +136,8 @@ public class DrillsValidator
         {
             itemArray.add(item);
         }
+
+        if (itemArray.size == 0) return null;
 
         itemArray.sort((item1, item2) ->
         {

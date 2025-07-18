@@ -60,6 +60,7 @@ public class CHWindow extends Table
 
         Load();
         FitIntoScreenBorders();
+        Snap();
     }
 
     public void InitTitleBarMin()
@@ -71,6 +72,7 @@ public class CHWindow extends Table
             minimized = false;
             MinimizationRefresh();
             FitIntoScreenBorders();
+            Snap();
             Save();
         }).size(buttonSize).align(Align.right);
 
@@ -89,6 +91,7 @@ public class CHWindow extends Table
             minimized = true;
             MinimizationRefresh();
             FitIntoScreenBorders();
+            Snap();
             Save();
         }).size(buttonSize).get().setPosition(0, 0);;
 
@@ -100,11 +103,13 @@ public class CHWindow extends Table
     {
         titlePane.touchable = Touchable.enabled;
         titlePane.align(Align.left);
+        titlePane.visible(() -> titlePane.hasChildren());
     }
 
     public void InitCont()
     {
         cont.touchable = Touchable.enabled;
+        cont.visible(() -> cont.hasChildren());
     }
 
     public void MinimizationRefresh()
@@ -165,6 +170,56 @@ public class CHWindow extends Table
         {
             y = graphics.getHeight() - (height * scaleY);
         }
+    }
+
+
+    public float snapDst = 30f;
+
+    public void Snap()
+    {
+        SnapToEdges();
+        SnapToWindows();
+    }
+
+    public void SnapToEdges()
+    {
+        if (x < snapDst)
+        {
+            x = 0;
+        }
+        else if (x + (width * scaleX) > graphics.getWidth() - snapDst)
+        {
+            x = graphics.getWidth()- (width * scaleX);
+        }
+
+        if (y < snapDst)
+        {
+            y = 0;
+        }
+        else if (y + (height * scaleY) > graphics.getHeight() - snapDst)
+        {
+            y = graphics.getHeight() - (height * scaleY);
+        }
+    }
+
+    public void SnapToWindows()
+    {
+        /*
+        for (CHWindow window : windows) 
+        {
+            float wx = window.getX(window.getAlign());
+            float wy = window.getY(window.getAlign());
+            float wWidth = window.getWidth();
+            float wHeight = window.getHeight();
+            float wScaleX = window.scaleX;
+            float wScaleY = window.scaleY;
+
+            if (Math.abs((x + (width * scaleX)) - (wx)) < snapDst)
+            {
+                x = wx - (width * scaleX);
+            }
+        }
+        */
     }
 
 
@@ -239,6 +294,7 @@ public class CHWindow extends Table
 
             thisW.setPosition(pos.x, pos.y);
             FitIntoScreenBorders();
+            Snap();
             Save();
 
             dragging = true;

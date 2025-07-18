@@ -5,6 +5,7 @@ import static arc.Core.settings;
 import arc.Events;
 import arc.math.geom.Geometry;
 import arc.math.geom.Vec2;
+import arc.struct.Queue;
 import arc.struct.Seq;
 import mindustry.Vars;
 import mindustry.content.Blocks;
@@ -13,6 +14,7 @@ import mindustry.entities.Units;
 import mindustry.entities.units.BuildPlan;
 import mindustry.game.EventType.Trigger;
 import mindustry.gen.Building;
+import mindustry.type.Item;
 import mindustry.world.Block;
 import mindustry.world.blocks.ConstructBlock.ConstructBuild;
 import mindustry.world.blocks.defense.turrets.LiquidTurret;
@@ -23,22 +25,27 @@ public class PlansPrioritizer
     public Seq<PriorityFilter> filters = new Seq<>();
     public Seq<BuildPlan> prioritizedPlans = new Seq<>();
 
-    public void Init()
+    public PlansPrioritizer()
     {
         filters.add(new PriorityFilter[]
         {
             new LiquidsFilter(),
             new TurretsFilter()
         });
+    }
 
+    public void Init()
+    {
         Events.run(Trigger.update, () -> 
         {
             if (!IsEnabled()) return;
+            boolean infinite = Vars.state.rules.infiniteResources || Vars.player.unit().team.rules().infiniteResources;
+            if (Vars.player.unit().core() == null && !infinite) return;
             
-            prioritizedPlans.removeAll(plan -> plan == null || (plan.build() != null && !(plan.build() instanceof ConstructBuild)) || plan.block == Blocks.air);
+            Queue<BuildPlan> plans = Vars.player.unit().plans;
+            prioritizedPlans.removeAll(plan -> plan == null || (plan.build() != null && !(plan.build() instanceof ConstructBuild)) || plan.block == Blocks.air || !plans.contains(plan));
 
             Seq<BuildPlan> prioritize = new Seq<>();
-            var plans = Vars.player.unit().plans;
 
             for (BuildPlan plan : plans) 
             {
@@ -60,6 +67,27 @@ public class PlansPrioritizer
         });
     }
 
+    public boolean HasEnoughResources(BuildPlan plan)
+    {
+        var requirements = plan.block.requirements;
+        for (int i = 0; i < requirements.length; i++)
+        {
+            var itemsStack = requirements[i];
+            var coreAmount = GetAmountInCore(itemsStack.item);
+            if (itemsStack.amount > coreAmount)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public int GetAmountInCore(Item item)
+    {
+        var core = Vars.player.unit().core();
+        return core.items.get(item);
+    }
+
     public boolean IsEnabled()
     {
         return settings.getBool("prioritizePlans");
@@ -73,7 +101,7 @@ public class PlansPrioritizer
 
     public class LiquidsFilter implements PriorityFilter
     {
-        public Seq<Block> pumps = new Seq<>(new Block[]
+        public Seq<Block> pumpBlocks = new Seq<>(new Block[]
         {
             Blocks.mechanicalPump,
             Blocks.rotaryPump,
@@ -102,7 +130,8 @@ public class PlansPrioritizer
         {
             if (plan.breaking) return false;
             
-            if (!stewerBlocks.contains(plan.block)) return true;
+            if (!stewerBlocks.contains(plan.block) && !pumpBlocks.contains(plan.block) && !distributionBlocks.contains(plan.block)) return false;
+            if (!HasEnoughResources(plan)) return false;
             if (!IsFireInRange(new Vec2(plan.getX(), plan.getY()), GetMaxRange())) return false;
 
             _BuildPlan buildPlan = new _BuildPlan();
@@ -163,8 +192,8 @@ public class PlansPrioritizer
 
         public boolean IsPump(_BuildPlan buildPlan)
         {
-            if (buildPlan.plan != null && pumps.contains(buildPlan.plan.block)) return true;
-            if (buildPlan.build != null && pumps.contains(buildPlan.build.block)) return true;
+            if (buildPlan.plan != null && pumpBlocks.contains(buildPlan.plan.block)) return true;
+            if (buildPlan.build != null && pumpBlocks.contains(buildPlan.build.block)) return true;
             return false;
         }
 
@@ -299,6 +328,7 @@ public class PlansPrioritizer
         {
             if (plan.breaking) return false;
             if (!priorityBlocks.contains(plan.block)) return false;
+            if (!HasEnoughResources(plan)) return false;
 
             foundEnemy = false;
             Units.nearbyEnemies(Vars.player.team(), plan.getX(), plan.getY(), GetMaxRange(), u -> foundEnemy = true);

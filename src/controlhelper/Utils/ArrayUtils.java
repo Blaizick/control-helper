@@ -29,6 +29,14 @@ public class ArrayUtils
         return out;
     }
 
+    public static <T> Seq<T> Copy(Seq<T> a)
+    {
+        if (a == null) return null;
+        Seq<T> out = new Seq<>();
+        for (T i : a)  out.add(i);
+        return out;
+    }
+
     public static <T> T[] Concatenate(T[] a, T[] b)
     {
         if (a == null || b == null) return null;

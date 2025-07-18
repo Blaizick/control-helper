@@ -1,22 +1,22 @@
 package controlhelper.core;
 
-import static arc.Core.graphics;
 import static arc.Core.settings;
 
 import arc.Core;
 import arc.Events;
-import arc.struct.Queue;
+import arc.math.Mathf;
 import mindustry.Vars;
 import mindustry.entities.units.BuildPlan;
 import mindustry.game.EventType.Trigger;
 import mindustry.input.Binding;
 import mindustry.type.Item;
-import mindustry.type.ItemStack;
 
 public class HandMiner
 {
-    public float delayBeforeStart = 0.5f;
-    protected float curDelay;
+    public long delayBeforeStart = 500l;
+    public long pressTime = 0l;
+    public boolean pressed;
+    public boolean active;
 
     public void Init()
     {
@@ -27,50 +27,94 @@ public class HandMiner
             if (Vars.player == null || Vars.player.unit() == null || Vars.player.dead()) return;
             if (Vars.player.team().cores().size == 0) return;
             if (!Vars.player.within(Vars.player.unit().closestCore(), Vars.player.unit().range() - 1f)) return;
+            boolean infinite = Vars.state.rules.infiniteResources || Vars.player.unit().team.rules().infiniteResources;
+            if (Vars.player.unit().core() == null && !infinite) return;
             
             if (Core.input.keyDown(Binding.pause_building))
             {
-                if (curDelay > 0)
+                if (!pressed)
                 {
-                    curDelay -= graphics.getDeltaTime();
-                    return;
+                    pressTime = System.currentTimeMillis();
+                    pressed = true;
+                }
+
+                if (System.currentTimeMillis() - pressTime > delayBeforeStart)
+                {
+                    active = true;
                 }
             }
-            else
+            if (Core.input.keyRelease(Binding.pause_building))
             {
-                curDelay = delayBeforeStart;
-                return;
+                pressed = false;
+                active = false;
             }
 
-            if (Vars.player.unit().mineTile == null) return;
-            Item mineItem = Vars.player.unit().mineTile.drop();
-            int neededAmount = GetNeededAmount(mineItem);
-
-            if (Vars.control.input.isBuilding && GetCoreAmount(mineItem) > 0)
+            if (active)
             {
-                return;
-            }
-
-            if (neededAmount > 0)
-            {
-                if (Vars.control.input.isBuilding)
+                if (Vars.player.unit().mineTile == null) return;
+                Item mineItem = Vars.player.unit().mineTile.drop();
+                if (Vars.control.input.isBuilding && GetCoreAmount(mineItem) > 0) return;
+                var plan = GetPlan();
+                var neededAmount = GetNeededAmount(mineItem, plan);
+                var coreAmount = GetCoreAmount(mineItem);
+                if (neededAmount > 0)
                 {
-                    Vars.control.input.isBuilding = false;
+                    if (Vars.control.input.isBuilding)
+                    {
+                        Vars.control.input.isBuilding = false;
+                    }
                 }
-            }
-            else
-            {
-                if (!Vars.control.input.isBuilding)
+                else if (coreAmount > 0)
                 {
-                    Vars.control.input.isBuilding = true;
+                    if (!Vars.control.input.isBuilding)
+                    {
+                        Vars.control.input.isBuilding = true;
+                    }
                 }
             }
         });
     }
 
 
-    public int GetNeededAmount(Item targetItem)
+    public BuildPlan GetPlan()
     {
+        var unit = Vars.player.unit();
+        var plans = unit.plans;
+        var core = unit.core();
+        float finalPlaceDst = Vars.state.rules.infiniteResources ? Float.MAX_VALUE : unit.type.buildRange;
+
+        if(plans.size > 1){
+            int total = 0;
+            int size = plans.size;
+            BuildPlan plan;
+            while((!unit.within((plan = unit.buildPlan()).tile(), finalPlaceDst) || unit.shouldSkip(plan, core)) && total < size){
+                plans.removeFirst();
+                plans.addLast(plan);
+                total++;
+            }
+            return unit.buildPlan();
+        }
+
+        return null;
+    }
+
+    public int GetNeededAmount(Item targetItem, BuildPlan plan)
+    {
+        var coreAmount = GetCoreAmount(targetItem);
+        int cost = 0;
+        var requirements = plan.block.requirements;
+        for (int i = 0; i < requirements.length; i++)
+        {
+            var itemStack = requirements[i];
+            var item = itemStack.item;
+            if (item != targetItem) continue;
+            cost = itemStack.amount;
+            break;
+        }
+
+        return Mathf.clamp(cost - coreAmount, 0, Integer.MAX_VALUE);
+
+        /*
         Queue<BuildPlan> plans = Vars.player.unit().plans;
     
         int leastAmount = Integer.MAX_VALUE;
@@ -109,6 +153,8 @@ public class HandMiner
             neededAmount = 0;
         }
         return neededAmount;
+
+        */
     }
 
     public int GetCoreAmount(Item item)

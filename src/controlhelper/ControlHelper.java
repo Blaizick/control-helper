@@ -30,7 +30,6 @@ public class ControlHelper extends Mod
     public static RequestExecutor requestExecutor;
 
     public static UnitSplitter unitSplitter;
-    //public static UnitMiner unitMiner;
     public static DrillsValidator drillsValidator;
     public static HandMiner handMiner;
     public static PlansSaver plansSaver;
@@ -40,7 +39,6 @@ public class ControlHelper extends Mod
     public static PlansPrioritizer plansPrioritizer;
     public static ExtinguishedRebuilder extinguishedRebuilder;
 
-    //public static UnitMinerWindow unitMinerWindow;
     public static ControlHelperWindow controlHelperWindow;
 
     @Override
@@ -54,7 +52,6 @@ public class ControlHelper extends Mod
         requestExecutor = new RequestExecutor();
 
         unitSplitter = new UnitSplitter();
-        //unitMiner = new UnitMiner();
         drillsValidator = new DrillsValidator();
         plansSaver = new PlansSaver();
         handMiner = new HandMiner();
@@ -64,7 +61,6 @@ public class ControlHelper extends Mod
         plansPrioritizer = new PlansPrioritizer();
         extinguishedRebuilder = new ExtinguishedRebuilder();
 
-        //unitMinerWindow = new UnitMinerWindow();
         controlHelperWindow = new ControlHelperWindow();
 
 
@@ -78,7 +74,6 @@ public class ControlHelper extends Mod
         requestExecutor.Init();
 
         unitSplitter.Init();
-        //unitMiner.Init();
         drillsValidator.Init();
         plansSaver.Init();
         handMiner.Init();
@@ -86,25 +81,7 @@ public class ControlHelper extends Mod
         plansPrioritizer.Init();
         extinguishedRebuilder.Init();
 
-        //unitMinerWindow.Init();
-        //unitMinerWindow.Build();
         controlHelperWindow.Init();
         controlHelperWindow.Build();
     }
-
-
-    //* Улучшить автовин
-    //* Выделение юнитов без саппортов
-    //* Отключение заводов и сильно потребляющих производст
-    //* Несколько хоткеев для разного кол-ва выделенных юнитов
-    //* Сделать, чтобы можно было сбросить хоткей
-    //* Приоритетная установка турелей и тушилок
-    //* Пофиксить фигню, что конвееры строятся первыми при включенном removeExcessDrills
-    //* Обновить RebindOverlay
-    //* Соединение разьеденённой энергосети после отключение заводов юнитов
-    
-    //* Проверка на то идёт ли вода в блок тушилки
-    //* Удаление блоков в огне и потом их перестройка
-
-    //todo копалка?
 }
