@@ -124,7 +124,6 @@ public class PlansPrioritizer
         });
 
         
-        protected boolean foundFire = false;
         @Override
         public boolean ShouldPreoritize(BuildPlan plan) 
         {
@@ -132,14 +131,26 @@ public class PlansPrioritizer
             
             if (!stewerBlocks.contains(plan.block) && !pumpBlocks.contains(plan.block) && !distributionBlocks.contains(plan.block)) return false;
             if (!HasEnoughResources(plan)) return false;
-            if (!IsFireInRange(new Vec2(plan.getX(), plan.getY()), GetMaxRange())) return false;
+            if (stewerBlocks.contains(plan.block))
+            {
+                if (IsFireInRange(new Vec2(plan.getX(), plan.getY()), GetMaxRange())) return true;
+            }
+            else if (pumpBlocks.contains(plan.block) || distributionBlocks.contains(plan.block))
+            {
+                if (!prioritizedPlans.contains(b -> stewerBlocks.contains(b.block))) return false;
+            }
+            else
+            {
+                return false;
+            }
 
             _BuildPlan buildPlan = new _BuildPlan();
             buildPlan.plan = plan;
-            if (!LeadsToStewer(buildPlan)) return false;
+            if (LeadsToStewer(buildPlan)) return true;
             return false;
         }
 
+        protected boolean foundFire = false;
         public boolean IsFireInRange(Vec2 pos, float range)
         {
             foundFire = false;
