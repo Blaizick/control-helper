@@ -29,7 +29,6 @@ public class PlansPrioritizer
     {
         filters.add(new PriorityFilter[]
         {
-            new LiquidsFilter(),
             new TurretsFilter()
         });
     }
@@ -85,6 +84,8 @@ public class PlansPrioritizer
     public int GetAmountInCore(Item item)
     {
         var core = Vars.player.unit().core();
+        if (core == null) return 0;
+        if (!core.items.has(item)) return 0;
         return core.items.get(item);
     }
 

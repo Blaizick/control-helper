@@ -43,8 +43,10 @@ public class UnitSplitter
         }
 
         Seq<Unit> selectedUnits = Vars.control.input.selectedUnits;
+        if (selectedUnits == null || selectedUnits.size == 0) return;
         Seq<Unit> validUnits = new Seq<>();
         selectedUnits.each(u -> {if (u.isValid() && u.isCommandable()) validUnits.add(u);});
+        if (validUnits.size == 0) return;
 
         Seq<Unit> units = new Seq<Unit>();
         int targetCount = Mathf.clamp((int)Math.round((float)validUnits.size * percent), 1, validUnits.size);
