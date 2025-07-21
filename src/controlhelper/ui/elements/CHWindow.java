@@ -93,7 +93,7 @@ public class CHWindow extends Table
             FitIntoScreenBorders();
             Snap();
             Save();
-        }).size(buttonSize).get().setPosition(0, 0);;
+        }).size(buttonSize);
 
         titleBarMax.addListener(new TitleBarInputListener());
         titleBarMax.touchable = Touchable.enabled;

@@ -1,4 +1,4 @@
-package controlhelper.core;
+package controlhelper.modules;
 
 import static arc.Core.settings;
 
@@ -6,9 +6,10 @@ import arc.Events;
 import arc.struct.ObjectIntMap;
 import arc.struct.Queue;
 import arc.struct.Seq;
+import controlhelper.core.events.CHEventType.PlayerPlansChangeEvent;
+import controlhelper.utils.ArrayUtils;
 import mindustry.Vars;
 import mindustry.entities.units.BuildPlan;
-import mindustry.game.EventType.Trigger;
 import mindustry.type.Item;
 import mindustry.world.Tile;
 import mindustry.world.blocks.production.Drill;
@@ -17,69 +18,38 @@ public class DrillsValidator
 {
     public float drillsThreashold = 0.6f;
 
-    public Queue<BuildPlan> deltaPlans = new Queue<>();
-
     public void Init()
     {
-        Events.run(Trigger.update, () -> 
+        Events.on(PlayerPlansChangeEvent.class, e -> 
         {
             if (!IsEnabled()) return;
             if (!Vars.state.isGame()) return;
+            if (e.added == null || e.added.size == 0) return;
+            if (Vars.player == null || Vars.player.unit() == null || Vars.player.unit().plans == null);
 
-            Queue<BuildPlan> plans = Vars.player.unit().plans;
-            Queue<BuildPlan> newPlans = new Queue<>();
-
-            for (BuildPlan plan : plans) 
-            {
-                if (deltaPlans.contains(plan)) continue;
-                newPlans.add(plan);
-            }
-            if (newPlans.size == 0) return;
-
-            Queue<BuildPlan> tmpPlans = new Queue<>();
-            for (BuildPlan plan : deltaPlans) 
-            {
-                if (plans.contains(plan))
-                {
-                    tmpPlans.add(plan);
-                }
-            }
-            Queue<BuildPlan> validatedPlans = ValidatePlans(newPlans);
-            for (BuildPlan plan : validatedPlans)
-            {
-                tmpPlans.add(plan);
-            }
-
-            Vars.player.unit().plans = tmpPlans;
-
-            deltaPlans.clear();
-            for (BuildPlan plan : tmpPlans) 
-            {
-                deltaPlans.add(plan);
-            }
+            var plansToRemove = GetPlansToRemove(e.added);
+            ArrayUtils.RemoveAll(Vars.player.unit().plans, plan -> plan != null && plansToRemove.contains(plan));
         });
     }    
 
 
-    public Queue<BuildPlan> ValidatePlans(Queue<BuildPlan> plans)
+    public Queue<BuildPlan> GetPlansToRemove(Queue<BuildPlan> plans)
     {
-        Queue<BuildPlan> anotherBlocks = new Queue<>();
         Queue<DVDrill> drills = new Queue<>();
+        var tmp = ArrayUtils.Copy(plans);
+        var drillsCount = 0;
 
-        for (BuildPlan plan : plans) 
+        ArrayUtils.RemoveAll(tmp, plan -> plan != null && plan.block != null && !(plan.block instanceof Drill));
+
+        for (BuildPlan plan : tmp)
         {
-            if (plan.breaking) continue;
-
-            if (!(plan.block instanceof Drill)) 
-            {
-                anotherBlocks.add(plan);
-                continue;
-            }
+            if (plan == null || plan.block == null || plan.breaking) continue;
 
             Drill drill = (Drill)plan.block;
+            if (drill == null) continue;
             Item returnItem = GetDrillReturnItem(drill, plan.tile());
             if (returnItem == null) continue;
-            int id = drills.indexOf(i -> i.returnItem == returnItem);
+            var id = drills.indexOf(i -> i.returnItem == returnItem);
             if (id == -1)
             {
                 DVDrill dvDrill = new DVDrill(returnItem);
@@ -90,30 +60,22 @@ public class DrillsValidator
             {
                 drills.get(id).plans.add(plan);
             }
+            drillsCount++;
         }
 
-        int drillsCount = 0;
-        for (DVDrill dvDrill : drills) 
+        if (drillsCount == 0) return new Queue<>();
+        for (DVDrill dvDrill : drills)
         {
-            drillsCount += dvDrill.plans.size;
-        } 
+            var relativeReturnItem = (float)dvDrill.plans.size / (float)drillsCount;
+            if (relativeReturnItem > drillsThreashold)
+            {
 
-        if (drillsCount == 0) return plans;
-        for (DVDrill dvDrill : drills) 
-        {
-            dvDrill.relativeReturnItem = (float)dvDrill.plans.size / (float)drillsCount;
+                ArrayUtils.RemoveAll(tmp, plan -> plan != null && plan.block != null && dvDrill.plans.contains(plan));
+                return tmp;
+            }
         }
 
-        int id = drills.indexOf(i -> i.relativeReturnItem > drillsThreashold);
-        if (id == -1) return plans;
-
-        Queue<BuildPlan> newPlans = new Queue<>();
-        plans.each(i -> 
-        {
-            if (!drills.get(id).plans.contains(i) && !anotherBlocks.contains(i)) return;
-            newPlans.add(i);
-        });
-        return newPlans;
+        return new Queue<>();
     }
 
     public Item GetDrillReturnItem(Drill drill, Tile tile)
@@ -157,12 +119,10 @@ public class DrillsValidator
     }
 
 
-
     public class DVDrill 
     {
         public Item returnItem;
         public Queue<BuildPlan> plans = new Queue<>();
-        public float relativeReturnItem = 0f;
 
         public DVDrill(Item returnItem)
         {

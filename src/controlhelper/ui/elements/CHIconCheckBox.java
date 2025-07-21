@@ -8,7 +8,7 @@ import mindustry.ui.Styles;
 public class CHIconCheckBox extends Button
 {
     protected Cons<Boolean> onCheck;
-    public boolean checked;
+    protected boolean checked;
     public final boolean defaultChecked;
     
     public ButtonStyle style;
@@ -48,6 +48,11 @@ public class CHIconCheckBox extends Button
     {
         checked = value;
         setChecked(checked);
-        onCheck.get(checked);
+        if (onCheck != null) onCheck.get(checked);
+    }
+
+    public boolean GetChecked(boolean value)
+    {
+        return checked;
     }
 }

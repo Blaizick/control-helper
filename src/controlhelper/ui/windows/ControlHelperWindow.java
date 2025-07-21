@@ -1,10 +1,12 @@
 package controlhelper.ui.windows;
 
 import static arc.Core.settings;
+import static controlhelper.ControlHelper.distributionAlternator;
 import static controlhelper.ControlHelper.factoriesDepowerer;
 import static controlhelper.ControlHelper.producersDepowerer;
 
 import controlhelper.ui.elements.CHIconCheckBox;
+import controlhelper.ui.elements.CHIconCheckPref;
 import controlhelper.ui.elements.CHWindow;
 import mindustry.Vars;
 import mindustry.gen.Iconc;
@@ -36,6 +38,10 @@ public class ControlHelperWindow extends CHWindow
         {
             if (c) producersDepowerer.DepowerBuilds();
             else producersDepowerer.PowerBuilds();
+        }).Init()).size(buttonSize);
+        cont.add(new CHIconCheckPref("alternateDistribution", Iconc.blockInvertedSorter + "", c ->
+        {
+            distributionAlternator.enabled = c;
         }).Init()).size(buttonSize);
 
         super.InitCont();

@@ -1,8 +1,9 @@
-package controlhelper.Utils;
+package controlhelper.utils;
 
 import java.lang.reflect.Array;
 
 import arc.struct.Seq;
+import arc.func.Boolf;
 import arc.struct.Queue;
 
 public class ArrayUtils 
@@ -21,6 +22,7 @@ public class ArrayUtils
         return true;
     }
 
+
     public static <T> Queue<T> Copy(Queue<T> a)
     {
         if (a == null) return null;
@@ -36,6 +38,7 @@ public class ArrayUtils
         for (T i : a)  out.add(i);
         return out;
     }
+
 
     public static <T> T[] Concatenate(T[] a, T[] b)
     {
@@ -66,6 +69,7 @@ public class ArrayUtils
         return c;
     }   
 
+
     public static int[] ToArray(Seq<Integer> seq)
     {
         if (seq == null) return null;
@@ -76,5 +80,52 @@ public class ArrayUtils
             arr[i] = (int)seq.get(i);
         }
         return arr;
+    }
+
+
+    public static <T> Queue<T> RemoveAll(Queue<T> queue, Boolf<T> cond)
+    {
+        for (int i = 0; i < queue.size; i++)
+        {
+            var cur = queue.get(i);
+            if (cond.get(cur))
+            {
+                queue.remove(cur);
+                i--;
+            }
+        }
+        return queue;
+    }
+
+
+    public static <T> Queue<T> AddAt(Queue<T> queue, T val, int id)
+    {
+        if (queue == null) return null;
+        if (queue.size == 0) return queue;
+
+        if (id > queue.size) id = queue.size;
+        Queue<T> afterId = new Queue<>();
+        while (queue.size > id) 
+        {
+            afterId.add(queue.get(id));
+            queue.removeIndex(id);
+        }
+        queue.add(val);
+        for (var i : afterId)
+        {
+            queue.add(i);
+        }
+        return queue;
+    }
+
+
+    public static <T> Queue<T> Replace(Queue<T> queue, T a, T b)
+    {
+        if (queue == null) return  null;
+        if (queue.size == 0) return queue;
+        int id = queue.indexOf(i -> i == a);
+        if (id == -1) return queue;
+        queue.removeIndex(id);
+        return AddAt(queue, b, id);
     }
 }

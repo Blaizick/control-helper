@@ -1,4 +1,4 @@
-package controlhelper.Utils;
+package controlhelper.utils;
 
 import arc.struct.Seq;
 import mindustry.gen.Groups;

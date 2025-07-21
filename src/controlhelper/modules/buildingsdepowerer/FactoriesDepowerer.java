@@ -1,4 +1,4 @@
-package controlhelper.core.buildingsdepowerer;
+package controlhelper.modules.buildingsdepowerer;
 
 import mindustry.content.Blocks;
 import arc.struct.Seq;

@@ -1,4 +1,4 @@
-package controlhelper.core;
+package controlhelper.modules;
 
 import arc.Core;
 import arc.Events;

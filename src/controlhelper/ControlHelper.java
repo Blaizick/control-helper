@@ -1,23 +1,12 @@
 package controlhelper;
 
-import controlhelper.core.DrillsValidator;
-import controlhelper.core.ExtinguishedRebuilder;
-import controlhelper.core.HandMiner;
-import controlhelper.core.PlansPrioritizer;
-import controlhelper.core.PlansSaver;
-import controlhelper.core.SupportsIgnorer;
-//import controlhelper.core.UnitMiner;
-import controlhelper.core.UnitSplitter;
-import controlhelper.core.buildingsdepowerer.FactoriesDepowerer;
-import controlhelper.core.buildingsdepowerer.ProducersDepowerer;
-import controlhelper.core.requestexecutor.RequestExecutor;
-import controlhelper.inputs.Keybind;
-import controlhelper.inputs.RebindOverlay;
-import controlhelper.ui.settings.AdvancedSettingsDialog;
-import controlhelper.ui.settings.ControlsDialog;
-import controlhelper.ui.settings.SettingsDialog;
-import controlhelper.ui.windows.ControlHelperWindow;
-//import controlhelper.ui.UnitMinerWindow;
+import controlhelper.core.events.*;
+import controlhelper.core.requestexecutor.*;
+import controlhelper.inputs.*;
+import controlhelper.modules.*;
+import controlhelper.modules.buildingsdepowerer.*;
+import controlhelper.ui.settings.*;
+import controlhelper.ui.windows.*;
 import mindustry.mod.*;
 
 public class ControlHelper extends Mod
@@ -28,6 +17,7 @@ public class ControlHelper extends Mod
     public static SettingsDialog settingsDialog;
 
     public static RequestExecutor requestExecutor;
+    public static EventsRunner eventsRunner;
 
     public static UnitSplitter unitSplitter;
     public static DrillsValidator drillsValidator;
@@ -38,8 +28,10 @@ public class ControlHelper extends Mod
     public static ProducersDepowerer producersDepowerer;
     public static PlansPrioritizer plansPrioritizer;
     public static ExtinguishedRebuilder extinguishedRebuilder;
+    public static DistributionAlternator distributionAlternator;
 
     public static ControlHelperWindow controlHelperWindow;
+
 
     @Override
     public void init()
@@ -50,6 +42,7 @@ public class ControlHelper extends Mod
         settingsDialog = new SettingsDialog();
         
         requestExecutor = new RequestExecutor();
+        eventsRunner = new EventsRunner();
 
         unitSplitter = new UnitSplitter();
         drillsValidator = new DrillsValidator();
@@ -60,6 +53,7 @@ public class ControlHelper extends Mod
         producersDepowerer = new ProducersDepowerer();
         plansPrioritizer = new PlansPrioritizer();
         extinguishedRebuilder = new ExtinguishedRebuilder();
+        distributionAlternator = new DistributionAlternator();
 
         controlHelperWindow = new ControlHelperWindow();
 
@@ -72,6 +66,7 @@ public class ControlHelper extends Mod
         settingsDialog.Init();
         
         requestExecutor.Init();
+        eventsRunner.Init();
 
         unitSplitter.Init();
         drillsValidator.Init();
@@ -80,8 +75,15 @@ public class ControlHelper extends Mod
         supportsIgnorer.Init();
         plansPrioritizer.Init();
         extinguishedRebuilder.Init();
+        distributionAlternator.Init();
 
         controlHelperWindow.Init();
         controlHelperWindow.Build();
     }
+
+
+    //* чередовка сортеров с конвами, роутерами и перекёстками
+    //todo сохранение схем после перезахода
+    //todo перевести на русский
+    //? закрепление позиции камеры и возвращение к ней при нажатии клавиши
 }

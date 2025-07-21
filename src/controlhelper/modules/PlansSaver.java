@@ -1,8 +1,8 @@
-package controlhelper.core;
+package controlhelper.modules;
 
 import arc.Events;
 import arc.struct.Queue;
-import controlhelper.Utils.ArrayUtils;
+import controlhelper.utils.ArrayUtils;
 import mindustry.Vars;
 import mindustry.entities.units.BuildPlan;
 import mindustry.game.EventType.Trigger;

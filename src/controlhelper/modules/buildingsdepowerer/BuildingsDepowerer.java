@@ -1,4 +1,4 @@
-package controlhelper.core.buildingsdepowerer;
+package controlhelper.modules.buildingsdepowerer;
 
 import static controlhelper.ControlHelper.requestExecutor;
 

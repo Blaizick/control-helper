@@ -2,7 +2,7 @@ package controlhelper.core.requestexecutor;
 
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
-import controlhelper.Utils.ArrayUtils;
+import controlhelper.utils.ArrayUtils;
 import mindustry.Vars;
 import mindustry.ai.UnitCommand;
 import mindustry.gen.Building;
