@@ -5,6 +5,7 @@ import static arc.Core.settings;
 import arc.Core;
 import arc.Events;
 import arc.struct.Seq;
+import arc.util.Log;
 import mindustry.Vars;
 import mindustry.content.UnitTypes;
 import mindustry.game.EventType.Trigger;
@@ -30,6 +31,7 @@ public class SupportsIgnorer
         Events.run(Trigger.update, () ->
         {
             if (!IsEnabled()) return;
+            if (!Vars.state.isGame() || !Vars.control.input.commandMode) return;
 
             if (deselectNextFrame)
             {
@@ -58,11 +60,19 @@ public class SupportsIgnorer
     {
         Seq<Unit> units = new Seq<>();
 
-        for (Unit unit : Vars.control.input.selectedUnits) 
+        try
         {
-            if (!unitsToIgnore.contains(unit.type)) units.add(unit);
+            for (Unit unit : Vars.control.input.selectedUnits) //тут крч баг был java.lang.IncompatibleClassChangeError: Expected non-static field mindustry.input.InputHandler.selectedUnits
+            {
+                if (!unitsToIgnore.contains(unit.type)) units.add(unit);
+            }
+            Vars.control.input.selectedUnits = units;
         }
-        Vars.control.input.selectedUnits = units;
+        catch (Exception e)
+        {
+            Log.info(e);
+        }
+
     }
 
     public boolean IsEnabled()

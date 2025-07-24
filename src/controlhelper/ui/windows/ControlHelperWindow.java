@@ -3,6 +3,7 @@ package controlhelper.ui.windows;
 import static arc.Core.settings;
 import static controlhelper.ControlHelper.distributionAlternator;
 import static controlhelper.ControlHelper.factoriesDepowerer;
+//import static controlhelper.ControlHelper.mapSchemeSelector;
 import static controlhelper.ControlHelper.producersDepowerer;
 
 import controlhelper.ui.elements.CHIconCheckBox;
@@ -34,15 +35,26 @@ public class ControlHelperWindow extends CHWindow
             if (c) factoriesDepowerer.DepowerBuilds();
             else factoriesDepowerer.PowerBuilds();
         }).Init()).size(buttonSize);
+        
         cont.add(new CHIconCheckBox(Iconc.blockSurgeSmelter + "", c -> 
         {
             if (c) producersDepowerer.DepowerBuilds();
             else producersDepowerer.PowerBuilds();
         }).Init()).size(buttonSize);
+        
         cont.add(new CHIconCheckPref("alternateDistribution", Iconc.blockInvertedSorter + "", c ->
         {
             distributionAlternator.enabled = c;
         }).Init()).size(buttonSize);
+        
+        /*cont.add(new CHIconCheckBox("+", c -> 
+        {
+            mapSchemeSelector.selection = !mapSchemeSelector.selection;
+        }).DisableCallbackOnInit().Init()).update(c -> 
+        {
+            c.checked = mapSchemeSelector.selection;
+            c.setChecked(c.checked);
+        }).size(buttonSize).get();*/
 
         super.InitCont();
     }

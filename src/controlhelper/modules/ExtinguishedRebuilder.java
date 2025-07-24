@@ -3,25 +3,20 @@ package controlhelper.modules;
 import arc.Core;
 import arc.Events;
 import arc.graphics.Color;
-import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.Font;
-import arc.graphics.g2d.Lines;
 import arc.math.Mathf;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
+import controlhelper.core.CHDraw;
+import controlhelper.core.Vec2Int;
 import controlhelper.inputs.Keybind;
+import controlhelper.utils.GeometryUtils;
 import mindustry.Vars;
-import mindustry.content.Blocks;
-import mindustry.core.World;
 import mindustry.entities.Fires;
 import mindustry.entities.units.BuildPlan;
 import mindustry.game.EventType.Trigger;
 import mindustry.gen.Building;
-import mindustry.graphics.Layer;
 import mindustry.input.Placement;
-import mindustry.input.Placement.NormalizeDrawResult;
 import mindustry.input.Placement.NormalizeResult;
-import mindustry.ui.Fonts;
 import mindustry.world.Tile;
 
 public class ExtinguishedRebuilder
@@ -47,7 +42,7 @@ public class ExtinguishedRebuilder
     {
         Events.run(Trigger.drawOver, () -> 
         {
-            if (selection) DrawSelection();
+            if (selection) CHDraw.Selection(new Vec2Int(firstX, firstY), new Vec2Int(secondX, secondY), maxLength, col1, col2);
         });
         Events.run(Trigger.update, () ->
         {
@@ -60,8 +55,8 @@ public class ExtinguishedRebuilder
 
             if (Keybind.rebuildExtinguished.KeyDown())
             {
-                secondX = TileX(Core.input.mouseX());
-                secondY = TileY(Core.input.mouseY());
+                secondX = GeometryUtils.TileX(Core.input.mouseX());
+                secondY = GeometryUtils.TileY(Core.input.mouseY());
                 if (!selection) 
                 {
                     firstX = secondX;
@@ -73,8 +68,8 @@ public class ExtinguishedRebuilder
 
             if (Keybind.rebuildExtinguished.KeyUp())
             {
-                secondX = TileX(Core.input.mouseX());
-                secondY = TileY(Core.input.mouseY());
+                secondX = GeometryUtils.TileX(Core.input.mouseX());
+                secondY = GeometryUtils.TileY(Core.input.mouseY());
 
                 selections.add(new Selection(firstX, firstY, secondX, secondY));
                 selection = false;
@@ -84,31 +79,6 @@ public class ExtinguishedRebuilder
         });
     }
 
-/* 
-    public Seq<Selection> CheckSelectionsOverlap(Selection a, Selection b)
-    {
-        NormalizeResult resA = Placement.normalizeArea(a.x1, a.y1, a.x2, a.y2, 0, false, maxLength);
-        NormalizeResult resB = Placement.normalizeArea(b.x1, b.y1, b.x2, b.y2, 0, false, maxLength);
-
-        if (resA.x <= resB.x && resA.x2 >= resB.x2 && resA.y <= resB.y && resA.y2 >= resB.y2)
-        {
-            a.brokenBlocks.addAll(b.brokenBlocks);
-            return new Seq<>(new Selection[] {a});
-        }
-
-        if (resA.x >= resB.x && resA.x2 <= resB.x2 && resA.y >= resB.y && resA.y2 <= resB.y2)
-        {
-            b.brokenBlocks.addAll(a.brokenBlocks);
-            return new Seq<>(new Selection[] {b});
-        }
-
-        if (resA.x >= resB.x2 || resA.x2 <= resB.x || resA.y >= resB.y2 || resA.y2 <= resB.y)
-        {
-            return new Seq<>(new Selection[] {a, b});
-        }
-
-    }
-*/
 
     public void UpdateSelections()
     {
@@ -118,59 +88,6 @@ public class ExtinguishedRebuilder
         }
 
         selections.remove(sel -> sel.finished);
-    }
-
-
-    public int TileX(float cursorX)
-    {
-        Vec2 vec = Core.input.mouseWorld(cursorX, 0);
-        if(Vars.control.input.selectedBlock())
-        {
-            vec.sub(Vars.control.input.block.offset, Vars.control.input.block.offset);
-        }
-        return World.toTile(vec.x);
-    }
-
-    public int TileY(float cursorY)
-    {
-        Vec2 vec = Core.input.mouseWorld(0, cursorY);
-        if(Vars.control.input.selectedBlock())
-        {
-            vec.sub(Vars.control.input.block.offset, Vars.control.input.block.offset);
-        }
-        return World.toTile(vec.y);
-    }
-
-    public void DrawSelection()
-    {
-        int x1 = Mathf.round(firstX);
-        int x2 = Mathf.round(secondX);
-        int y1 = Mathf.round(firstY);
-        int y2 = Mathf.round(secondY);
-        int maxLength = Integer.MAX_VALUE;
-        NormalizeDrawResult result = Placement.normalizeDrawArea(Blocks.air, x1, y1, x2, y2, false, maxLength, 1f);
-
-        var col = Draw.getColor();
-        Lines.stroke(2f);
-        Draw.color(col2);
-        Lines.rect(result.x, result.y - 1, result.x2 - result.x, result.y2 - result.y);
-        Draw.color(col1);
-        Lines.rect(result.x, result.y, result.x2 - result.x, result.y2 - result.y);
-        Lines.stroke(1f);
-        Draw.color(col);
-
-        Font font = Fonts.outline;
-        font.setColor(col2);
-        var ints = font.usesIntegerPositions();
-        font.setUseIntegerPositions(false);
-        var z = Draw.z();
-        Draw.z(Layer.endPixeled);
-        font.getData().setScale(1 / Vars.renderer.getDisplayScale());
-        font.draw((int)((result.x2 - result.x) / 8) + "x" + (int)((result.y2 - result.y) / 8), result.x2, result.y);
-        font.setColor(Color.white);
-        font.getData().setScale(1);
-        font.setUseIntegerPositions(ints);
-        Draw.z(z);
     }
 
 

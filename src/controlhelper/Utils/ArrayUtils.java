@@ -128,4 +128,32 @@ public class ArrayUtils
         queue.removeIndex(id);
         return AddAt(queue, b, id);
     }
+
+    public static <T> Queue<T> AddAll(Queue<T> queueA, Queue<T> queueB)
+    {
+        for (T i : queueB) 
+        {
+            queueA.add(i);
+        }
+        return queueA;
+    }
+
+    public static <T> Queue<T> AddAll(Queue<T> queue, Seq<T> seq)
+    {
+        for (T i : seq)
+        {
+            queue.add(i);
+        }
+        return queue;
+    }
+
+    public static <T> Seq<T> ToSeq(Queue<T> queue)
+    {
+        Seq<T> seq = new Seq<>();
+        for (T i : queue) 
+        {
+            seq.add(i);
+        }
+        return seq;
+    }
 }

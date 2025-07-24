@@ -2,15 +2,21 @@ package controlhelper.core;
 
 import arc.math.Interp;
 import arc.math.Mathf;
+import arc.math.geom.Position;
 import arc.math.geom.Vec2;
 import arc.math.geom.Vector;
 
-public class Vec2Int implements Vector<Vec2Int>
+public class Vec2Int implements Vector<Vec2Int>, Position
 {
     public int x;
     public int y;
     
     public Vec2Int() { }
+
+    public Vec2Int(Vec2 v)
+    {
+        set(v);
+    }
 
     public Vec2Int(Vec2Int v)
     {
@@ -161,6 +167,13 @@ public class Vec2Int implements Vector<Vec2Int>
     {
         x /= other.x;
         y /= other.y;
+        return this;
+    }
+
+    public Vec2Int div(int other)
+    {
+        x /= other;
+        y /= other;
         return this;
     }
 
@@ -326,5 +339,17 @@ public class Vec2Int implements Vector<Vec2Int>
     public boolean samePos(int x, int y)
     {
         return this.x == x && this.y == y;
+    }
+
+    @Override
+    public float getX() 
+    {
+        return x;
+    }
+
+    @Override
+    public float getY() 
+    {
+        return y;
     }
 }

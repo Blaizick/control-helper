@@ -1,13 +1,19 @@
 package controlhelper;
 
+import arc.files.Fi;
 import controlhelper.core.events.*;
 import controlhelper.core.requestexecutor.*;
 import controlhelper.inputs.*;
 import controlhelper.modules.*;
 import controlhelper.modules.buildingsdepowerer.*;
+//import controlhelper.modules.mapscheme.MapSchemeManager;
+//import controlhelper.modules.mapscheme.MapSchemeAppendor;
+//import controlhelper.ui.mapscheme.MapSchemeBox;
 import controlhelper.ui.settings.*;
 import controlhelper.ui.windows.*;
+import mindustry.Vars;
 import mindustry.mod.*;
+import mindustry.mod.Mods.ModMeta;
 
 public class ControlHelper extends Mod
 {
@@ -29,13 +35,25 @@ public class ControlHelper extends Mod
     public static PlansPrioritizer plansPrioritizer;
     public static ExtinguishedRebuilder extinguishedRebuilder;
     public static DistributionAlternator distributionAlternator;
+    //public static MapSchemeManager mapSchemeManager;
+    //public static MapSchemeAppendor mapSchemeSelector;
 
     public static ControlHelperWindow controlHelperWindow;
+
+    //public static MapSchemeBox mapSchemeBox;
+
+    
+    public static Fi coreDirectory;
+    public static ModMeta meta;
 
 
     @Override
     public void init()
     {
+
+        meta = Vars.mods.getMod(this.getClass()).meta;
+        coreDirectory = Vars.modDirectory.child("control_helper/");
+
         rebindOverlay = new RebindOverlay();
         controlsDialog = new ControlsDialog();
         advancedSettingsDialog = new AdvancedSettingsDialog();
@@ -54,8 +72,12 @@ public class ControlHelper extends Mod
         plansPrioritizer = new PlansPrioritizer();
         extinguishedRebuilder = new ExtinguishedRebuilder();
         distributionAlternator = new DistributionAlternator();
+        //mapSchemeManager = new MapSchemeManager();
+        //mapSchemeSelector = new MapSchemeAppendor();
 
         controlHelperWindow = new ControlHelperWindow();
+
+        //mapSchemeBox = new MapSchemeBox();
 
 
         Keybind.Init();
@@ -76,6 +98,11 @@ public class ControlHelper extends Mod
         plansPrioritizer.Init();
         extinguishedRebuilder.Init();
         distributionAlternator.Init();
+        //mapSchemeManager.Init();
+        //mapSchemeSelector.Init();
+
+        //mapSchemeBox.Init();
+        //mapSchemeBox.Build();
 
         controlHelperWindow.Init();
         controlHelperWindow.Build();
@@ -83,7 +110,10 @@ public class ControlHelper extends Mod
 
 
     //* чередовка сортеров с конвами, роутерами и перекёстками
-    //todo сохранение схем после перезахода
-    //todo перевести на русский
+    //* перевести на русский
+    //todo mapscheme utils
+    //* крашрепорт
+    //todo mvc паттерны для биндов
+    //? сохранение схем после перезахода в мир
     //? закрепление позиции камеры и возвращение к ней при нажатии клавиши
 }

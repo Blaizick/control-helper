@@ -1,35 +1,44 @@
 package controlhelper.ui.elements;
 
-import arc.func.Cons;
+import arc.func.Boolc;
 import arc.scene.ui.Button;
+import arc.struct.Seq;
 import arc.util.Align;
 import mindustry.ui.Styles;
 
 public class CHIconCheckBox extends Button
 {
-    protected Cons<Boolean> onCheck;
-    protected boolean checked;
+    public boolean checked;
+
+    protected Seq<Boolc> onCheck = new Seq<>();
     public final boolean defaultChecked;
     
     public ButtonStyle style;
     public String icon;
 
+    public boolean callbackOnInit = true;
 
-    public CHIconCheckBox(String icon, Cons<Boolean> onCheck)
+    public CHIconCheckBox(String icon)
     {
         super();
-        this.name = null;
-        this.onCheck = onCheck;
         this.defaultChecked = false;
         this.icon = icon;
         this.style = Styles.flatTogglet;
     }
 
-    public CHIconCheckBox(String icon, boolean defaultChecked, Cons<Boolean> onCheck)
+    public CHIconCheckBox(String icon, Boolc onCheck)
     {
         super();
-        this.name = null;
-        this.onCheck = onCheck;
+        if (onCheck != null) this.onCheck.add(onCheck);
+        this.defaultChecked = false;
+        this.icon = icon;
+        this.style = Styles.flatTogglet;
+    }
+
+    public CHIconCheckBox(String icon, boolean defaultChecked, Boolc onCheck)
+    {
+        super();
+        if (onCheck != null) this.onCheck.add(onCheck);
         this.defaultChecked = defaultChecked;
         this.icon = icon;
         this.style = Styles.flatTogglet;
@@ -37,22 +46,27 @@ public class CHIconCheckBox extends Button
 
     public CHIconCheckBox Init()
     {
-        SetChecked(defaultChecked);
+        checked = defaultChecked;
+        if (callbackOnInit) onCheck.each(i -> i.get(checked));
         setStyle(Styles.flatTogglet);
         add(icon).align(Align.center);
-        clicked(() -> {SetChecked(!checked);});
+        clicked(() -> 
+        {
+            checked = !checked;
+            onCheck.each(i -> i.get(checked));
+            setChecked(checked);
+        });
         return this;
     }
 
-    public void SetChecked(boolean value)
+    public CHIconCheckBox DisableCallbackOnInit()
     {
-        checked = value;
-        setChecked(checked);
-        if (onCheck != null) onCheck.get(checked);
+        callbackOnInit = false;
+        return this;
     }
 
-    public boolean GetChecked(boolean value)
+    public void OnCheckAdd(Boolc onCheck)
     {
-        return checked;
+        this.onCheck.add(onCheck);
     }
 }
