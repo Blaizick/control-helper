@@ -12,55 +12,43 @@ import controlhelper.ui.elements.CHWindow;
 import mindustry.Vars;
 import mindustry.gen.Iconc;
 
-public class ControlHelperWindow extends CHWindow
-{
-    public ControlHelperWindow() 
-    {
+public class ControlHelperWindow extends CHWindow {
+    public ControlHelperWindow() {
         super("controlHelper");
     }
-    
+
     @Override
-    public void Init() 
-    {
+    public void Init() {
         visible(() -> Vars.state.isGame() && Vars.ui.hudfrag.shown && IsEnabled());
-        if (settings.getBool("showControlHelperWindow"));
+        if (settings.getBool("showControlHelperWindow"))
+            ;
         super.Init();
     }
 
     @Override
-    public void InitCont() 
-    {
-        cont.add(new CHIconCheckBox(Iconc.unitCorvus + "", c -> 
-        {
-            if (c) factoriesDepowerer.DepowerBuilds();
-            else factoriesDepowerer.PowerBuilds();
+    public void InitCont() {
+        cont.add(new CHIconCheckBox(Iconc.unitCorvus + "", c -> {
+            if (c)
+                factoriesDepowerer.DepowerBuilds();
+            else
+                factoriesDepowerer.PowerBuilds();
         }).Init()).size(buttonSize);
-        
-        cont.add(new CHIconCheckBox(Iconc.blockSurgeSmelter + "", c -> 
-        {
-            if (c) producersDepowerer.DepowerBuilds();
-            else producersDepowerer.PowerBuilds();
+
+        cont.add(new CHIconCheckBox(Iconc.blockSurgeSmelter + "", c -> {
+            if (c)
+                producersDepowerer.DepowerBuilds();
+            else
+                producersDepowerer.PowerBuilds();
         }).Init()).size(buttonSize);
-        
-        cont.add(new CHIconCheckPref("alternateDistribution", Iconc.blockInvertedSorter + "", c ->
-        {
+
+        cont.add(new CHIconCheckPref("alternateDistribution", Iconc.blockInvertedSorter + "", c -> {
             distributionAlternator.enabled = c;
         }).Init()).size(buttonSize);
-        
-        /*cont.add(new CHIconCheckBox("+", c -> 
-        {
-            mapSchemeSelector.selection = !mapSchemeSelector.selection;
-        }).DisableCallbackOnInit().Init()).update(c -> 
-        {
-            c.checked = mapSchemeSelector.selection;
-            c.setChecked(c.checked);
-        }).size(buttonSize).get();*/
 
         super.InitCont();
     }
 
-    public boolean IsEnabled()
-    {
+    public boolean IsEnabled() {
         return settings.getBool("showControlHelperWindow");
     }
 }

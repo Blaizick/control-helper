@@ -6,17 +6,13 @@ import controlhelper.core.requestexecutor.*;
 import controlhelper.inputs.*;
 import controlhelper.modules.*;
 import controlhelper.modules.buildingsdepowerer.*;
-//import controlhelper.modules.mapscheme.MapSchemeManager;
-//import controlhelper.modules.mapscheme.MapSchemeAppendor;
-//import controlhelper.ui.mapscheme.MapSchemeBox;
 import controlhelper.ui.settings.*;
 import controlhelper.ui.windows.*;
 import mindustry.Vars;
 import mindustry.mod.*;
 import mindustry.mod.Mods.ModMeta;
 
-public class ControlHelper extends Mod
-{
+public class ControlHelper extends Mod {
     public static RebindOverlay rebindOverlay;
     public static ControlsDialog controlsDialog;
     public static AdvancedSettingsDialog advancedSettingsDialog;
@@ -35,21 +31,21 @@ public class ControlHelper extends Mod
     public static PlansPrioritizer plansPrioritizer;
     public static ExtinguishedRebuilder extinguishedRebuilder;
     public static DistributionAlternator distributionAlternator;
-    //public static MapSchemeManager mapSchemeManager;
-    //public static MapSchemeAppendor mapSchemeSelector;
+    public static NodesBreaker nodesBreaker;
+    public static PlansSkipper plansSkipper;
+
+    // public static MapSchemeManager mapSchemeManager;
+    // public static MapSchemeAppendor mapSchemeSelector;
 
     public static ControlHelperWindow controlHelperWindow;
 
-    //public static MapSchemeBox mapSchemeBox;
+    // public static MapSchemeBox mapSchemeBox;
 
-    
     public static Fi coreDirectory;
     public static ModMeta meta;
 
-
     @Override
-    public void init()
-    {
+    public void init() {
 
         meta = Vars.mods.getMod(this.getClass()).meta;
         coreDirectory = Vars.modDirectory.child("control_helper/");
@@ -58,7 +54,7 @@ public class ControlHelper extends Mod
         controlsDialog = new ControlsDialog();
         advancedSettingsDialog = new AdvancedSettingsDialog();
         settingsDialog = new SettingsDialog();
-        
+
         requestExecutor = new RequestExecutor();
         eventsRunner = new EventsRunner();
 
@@ -72,13 +68,10 @@ public class ControlHelper extends Mod
         plansPrioritizer = new PlansPrioritizer();
         extinguishedRebuilder = new ExtinguishedRebuilder();
         distributionAlternator = new DistributionAlternator();
-        //mapSchemeManager = new MapSchemeManager();
-        //mapSchemeSelector = new MapSchemeAppendor();
+        plansSkipper = new PlansSkipper();
+        nodesBreaker = new NodesBreaker();
 
         controlHelperWindow = new ControlHelperWindow();
-
-        //mapSchemeBox = new MapSchemeBox();
-
 
         Keybind.Init();
 
@@ -86,7 +79,7 @@ public class ControlHelper extends Mod
         controlsDialog.Init();
         advancedSettingsDialog.Init();
         settingsDialog.Init();
-        
+
         requestExecutor.Init();
         eventsRunner.Init();
 
@@ -98,22 +91,10 @@ public class ControlHelper extends Mod
         plansPrioritizer.Init();
         extinguishedRebuilder.Init();
         distributionAlternator.Init();
-        //mapSchemeManager.Init();
-        //mapSchemeSelector.Init();
-
-        //mapSchemeBox.Init();
-        //mapSchemeBox.Build();
+        plansSkipper.Init();
+        nodesBreaker.Init();
 
         controlHelperWindow.Init();
         controlHelperWindow.Build();
     }
-
-
-    //* чередовка сортеров с конвами, роутерами и перекёстками
-    //* перевести на русский
-    //todo mapscheme utils
-    //* крашрепорт
-    //todo mvc паттерны для биндов
-    //? сохранение схем после перезахода в мир
-    //? закрепление позиции камеры и возвращение к ней при нажатии клавиши
 }
