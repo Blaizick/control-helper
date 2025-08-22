@@ -29,6 +29,7 @@ public class SettingsDialog extends BaseDialog {
         table.checkPref("prioritizePlans", true);
         table.checkPref("nodesBreaker", true);
         table.checkPref("plansSkipper", false);
+        table.checkPref("buildingsOverdrawer", true);
 
         table.row();
         table.button(bundle.get("settings.controlsButton.label"), () -> {

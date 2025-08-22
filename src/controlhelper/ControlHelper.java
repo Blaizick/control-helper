@@ -1,6 +1,6 @@
 package controlhelper;
 
-import arc.files.Fi;
+import arc.files.*;
 import controlhelper.core.events.*;
 import controlhelper.core.requestexecutor.*;
 import controlhelper.inputs.*;
@@ -10,7 +10,7 @@ import controlhelper.ui.settings.*;
 import controlhelper.ui.windows.*;
 import mindustry.Vars;
 import mindustry.mod.*;
-import mindustry.mod.Mods.ModMeta;
+import mindustry.mod.Mods.*;
 
 public class ControlHelper extends Mod {
     public static RebindOverlay rebindOverlay;
@@ -33,13 +33,10 @@ public class ControlHelper extends Mod {
     public static DistributionAlternator distributionAlternator;
     public static NodesBreaker nodesBreaker;
     public static PlansSkipper plansSkipper;
+    public static BuildingsOverdrawer buildingsOverdrawer;
 
-    // public static MapSchemeManager mapSchemeManager;
-    // public static MapSchemeAppendor mapSchemeSelector;
 
     public static ControlHelperWindow controlHelperWindow;
-
-    // public static MapSchemeBox mapSchemeBox;
 
     public static Fi coreDirectory;
     public static ModMeta meta;
@@ -70,6 +67,7 @@ public class ControlHelper extends Mod {
         distributionAlternator = new DistributionAlternator();
         plansSkipper = new PlansSkipper();
         nodesBreaker = new NodesBreaker();
+        buildingsOverdrawer = new BuildingsOverdrawer();
 
         controlHelperWindow = new ControlHelperWindow();
 
@@ -93,6 +91,7 @@ public class ControlHelper extends Mod {
         distributionAlternator.Init();
         plansSkipper.Init();
         nodesBreaker.Init();
+        buildingsOverdrawer.Init();
 
         controlHelperWindow.Init();
         controlHelperWindow.Build();
