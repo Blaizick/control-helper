@@ -84,12 +84,14 @@ public class NodesBreaker {
         Queue<BuildPlan> edges = new Queue();
 
         for (BuildPlan plan : plans) {
-            if (plan == null || plan.block == null) continue;
+            if (plan == null || plan.block == null)
+                continue;
 
             var collisions = GetCollisions(plan, plans);
-            if (collisions.size < 2) edges.add(plan);
+            if (collisions.size < 2)
+                edges.add(plan);
         }
-        
+
         return edges;
     }
 
@@ -98,8 +100,6 @@ public class NodesBreaker {
                 ? this.GetCollisions(new Vec2Int(plan.x, plan.y), plan.block.size, plans)
                 : new Queue();
     }
-
-
 
     public Queue<BuildPlan> GetCollisions(Vec2Int pos, int size, Queue<BuildPlan> plans) {
         Queue<BuildPlan> collisions = new Queue();
@@ -128,7 +128,6 @@ public class NodesBreaker {
         Vec2Int frontPos = GeometryUtils.GetFront(new Vec2Int(plan.x, plan.y), plan.block.size, plan.rotation);
         return Vars.world.build(frontPos.x, frontPos.y);
     }
-
 
     public boolean IsEnabled() {
         return Core.settings.getBool("nodesBreaker", true);

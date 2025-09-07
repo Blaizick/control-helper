@@ -23,6 +23,8 @@ public class TooltipCheckSetting extends CheckSetting {
     public void add(SettingsTable table) {
         CheckBox box = new CheckBox(title);
 
+        box.update(() -> box.setChecked(settings.getBool(name)));
+
         box.changed(() -> {
             settings.put(name, box.isChecked());
             if (changed != null) {

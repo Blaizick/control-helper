@@ -1,6 +1,5 @@
 package controlhelper;
 
-import arc.files.*;
 import controlhelper.core.events.*;
 import controlhelper.core.inputs.*;
 import controlhelper.core.requestexecutor.*;
@@ -8,9 +7,7 @@ import controlhelper.modules.*;
 import controlhelper.modules.buildingsdepowerer.*;
 import controlhelper.ui.settings.*;
 import controlhelper.ui.windows.*;
-import mindustry.Vars;
 import mindustry.mod.*;
-import mindustry.mod.Mods.*;
 
 public class ControlHelper extends Mod {
     public static RebindOverlay rebindOverlay;
@@ -38,15 +35,8 @@ public class ControlHelper extends Mod {
 
     public static ControlHelperWindow controlHelperWindow;
 
-    public static Fi coreDirectory;
-    public static ModMeta meta;
-
     @Override
     public void init() {
-
-        meta = Vars.mods.getMod(this.getClass()).meta;
-        coreDirectory = Vars.modDirectory.child("control_helper/");
-
         rebindOverlay = new RebindOverlay();
         controlsDialog = new ControlsDialog();
         advancedSettingsDialog = new AdvancedSettingsDialog();
@@ -99,5 +89,3 @@ public class ControlHelper extends Mod {
         controlHelperWindow.Build();
     }
 }
-
-//todo добавить возможность удалять приказы на юнита с реквест датабазы
