@@ -5,7 +5,7 @@ import static arc.Core.settings;
 import arc.Events;
 import arc.math.Mathf;
 import arc.struct.Seq;
-import controlhelper.inputs.Keybind;
+import controlhelper.core.inputs.Keybind;
 import mindustry.Vars;
 import mindustry.game.EventType.Trigger;
 import mindustry.gen.Unit;

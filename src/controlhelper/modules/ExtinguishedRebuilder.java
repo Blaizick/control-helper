@@ -8,7 +8,7 @@ import arc.math.geom.Vec2;
 import arc.struct.Seq;
 import controlhelper.core.CHDraw;
 import controlhelper.core.Vec2Int;
-import controlhelper.inputs.Keybind;
+import controlhelper.core.inputs.Keybind;
 import controlhelper.utils.GeometryUtils;
 import mindustry.Vars;
 import mindustry.entities.Fires;

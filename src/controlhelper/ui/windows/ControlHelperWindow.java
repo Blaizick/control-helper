@@ -3,14 +3,15 @@ package controlhelper.ui.windows;
 import static arc.Core.settings;
 import static controlhelper.ControlHelper.distributionAlternator;
 import static controlhelper.ControlHelper.factoriesDepowerer;
-//import static controlhelper.ControlHelper.mapSchemeSelector;
 import static controlhelper.ControlHelper.producersDepowerer;
 
+import controlhelper.modules.DistributionAlternator;
 import controlhelper.ui.elements.CHIconCheckBox;
-import controlhelper.ui.elements.CHIconCheckPref;
+import controlhelper.ui.elements.CHRemoteIconCheckBox;
 import controlhelper.ui.elements.CHWindow;
 import mindustry.Vars;
 import mindustry.gen.Iconc;
+import mindustry.ui.Styles;
 
 public class ControlHelperWindow extends CHWindow {
     public ControlHelperWindow() {
@@ -41,11 +42,19 @@ public class ControlHelperWindow extends CHWindow {
                 producersDepowerer.PowerBuilds();
         }).Init()).size(buttonSize);
 
-        cont.add(new CHIconCheckPref("alternateDistribution", Iconc.blockInvertedSorter + "", c -> {
-            distributionAlternator.enabled = c;
+        cont.add(new CHRemoteIconCheckBox(Iconc.blockInvertedSorter + "", b -> {
+            distributionAlternator.SetEnabled(b);
+        }, () -> {
+            return distributionAlternator.IsEnabled();
         }).Init()).size(buttonSize);
 
+        // cont.add(new CHIconCheckPref("alternateDistribution",
+        // Iconc.blockInvertedSorter + "", c -> {
+        // distributionAlternator.enabled = c;
+        // }).Init()).size(buttonSize);
+
         super.InitCont();
+
     }
 
     public boolean IsEnabled() {

@@ -2,23 +2,25 @@ package controlhelper.modules;
 
 import java.util.HashMap;
 
+import arc.Core;
 import arc.Events;
 import arc.struct.Queue;
 import arc.struct.Seq;
 import arc.util.Nullable;
 import controlhelper.core.Vec2Int;
 import controlhelper.core.events.CHEventType.PlayerPlansChangeEvent;
+import controlhelper.core.inputs.Keybind;
 import controlhelper.utils.ArrayUtils;
 import controlhelper.utils.GeneralUtils;
 import controlhelper.utils.GeometryUtils;
 import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.entities.units.BuildPlan;
+import mindustry.game.EventType.Trigger;
 import mindustry.world.Block;
 
 public class DistributionAlternator {
     public Seq<Block> replaceBlocks = new Seq<>();
-    public boolean enabled = false;
 
     public DistributionAlternator() {
         replaceBlocks.add(new Block[] {
@@ -30,8 +32,14 @@ public class DistributionAlternator {
     }
 
     public void Init() {
+        Events.run(Trigger.update, () -> {
+            if (Keybind.alternateDistribution.KeyTap()) {
+                SetEnabled(!IsEnabled());
+            }
+        });
+
         Events.on(PlayerPlansChangeEvent.class, e -> {
-            if (!enabled)
+            if (!IsEnabled())
                 return;
             if (!Vars.state.isGame())
                 return;
@@ -140,5 +148,13 @@ public class DistributionAlternator {
                 collisions.add(p);
         }
         return collisions;
+    }
+
+    public boolean IsEnabled() {
+        return Core.settings.getBool("distributionAlternator", true);
+    }
+
+    public void SetEnabled(boolean value) {
+        Core.settings.put("distributionAlternator", value);
     }
 }

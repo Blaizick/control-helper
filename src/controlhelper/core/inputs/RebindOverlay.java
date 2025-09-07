@@ -1,4 +1,4 @@
-package controlhelper.inputs;
+package controlhelper.core.inputs;
 
 import static arc.Core.bundle;
 

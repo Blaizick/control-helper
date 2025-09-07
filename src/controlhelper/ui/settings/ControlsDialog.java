@@ -3,7 +3,7 @@ package controlhelper.ui.settings;
 import static arc.Core.bundle;
 import static controlhelper.ControlHelper.rebindOverlay;
 
-import controlhelper.inputs.Keybind;
+import controlhelper.core.inputs.Keybind;
 import mindustry.gen.Iconc;
 import mindustry.ui.dialogs.BaseDialog;
 

@@ -1,72 +1,144 @@
 package controlhelper.core.requestexecutor;
 
+import arc.math.geom.Vec2;
+import arc.struct.Seq;
+import controlhelper.utils.ArrayUtils;
 import mindustry.Vars;
+import mindustry.ai.UnitCommand;
 import mindustry.gen.Building;
 import mindustry.gen.Call;
 import mindustry.gen.Unit;
 
-public interface IRequest 
-{
-    public void Execute();
+public interface IRequest extends IUnmergableRequest {
+    public abstract boolean AreSimiliar(IRequest request);
 
+    public abstract void MergeRequest(IRequest request);
 
-    public class TransferItemsTo implements IRequest
-    {
-        public Unit unit;
-        public int amount;
+    public static class MoveRequest implements IRequest {
+        public int[] unitIds;
         public Building building;
-        public Runnable callback;
+        public Unit unit;
+        public Vec2 target;
+        public Seq<Runnable> callbacks = new Seq<>();
 
-        public TransferItemsTo(Unit unit, int amount, Building building, Runnable callback)
-        {
-            this.unit = unit;
-            this.amount = amount;
+        private boolean executed = false;
+
+        public MoveRequest(int[] unitIds, Building building, Unit unit, Vec2 target) {
+            this.unitIds = unitIds;
             this.building = building;
-            this.callback = callback;
+            this.unit = unit;
+            this.target = target;
         }
 
-        public TransferItemsTo(Unit unit, int amount, Building building)
-        {
-            this.unit = unit;
-            this.amount = amount;
+        public MoveRequest(int[] unitIds, Building building, Unit unit, Vec2 target, Runnable callback) {
+            this.unitIds = unitIds;
             this.building = building;
+            this.unit = unit;
+            this.target = target;
+            this.callbacks.add(callback);
         }
 
         @Override
-        public void Execute() 
-        {
-            if (unit.dead || building.dead) return;
-            int accepted = building.acceptStack(unit.stack.item, amount, unit);
-            Call.transferItemTo(unit, unit.stack.item, accepted, unit.x, unit.y, building);
-            if (callback != null) callback.run();
+        public void Execute() {
+            Call.commandUnits(Vars.player, unitIds, building, unit, target);
+            for (Runnable callback : callbacks) {
+                if (callback == null)
+                    continue;
+                callback.run();
+            }
+        }
+
+        @Override
+        public boolean AreSimiliar(IRequest request) {
+            if (!(request instanceof MoveRequest))
+                return false;
+            MoveRequest moveRequest = (MoveRequest) request;
+            if (moveRequest.building != building || moveRequest.unit != unit)
+                return false;
+            if (this.target == null || moveRequest.target == null)
+                return false;
+            if (!moveRequest.target.within(target, 0.2f))
+                return false;
+            return true;
+        }
+
+        @Override
+        public void MergeRequest(IRequest request) {
+            if (!(request instanceof MoveRequest))
+                return;
+            MoveRequest moveRequest = (MoveRequest) request;
+
+            unitIds = ArrayUtils.Concatenate(unitIds, moveRequest.unitIds);
+            callbacks.add(moveRequest.callbacks);
+        }
+
+        @Override
+        public boolean IsExecuted() {
+            return executed;
+        }
+
+        @Override
+        public void SetExecuted(boolean executed) {
+            this.executed = executed;
         }
     }
 
-    public class TileConfig implements IRequest
-    {
-        public Building building;
-        public Object value;
-        public Runnable callback;
+    public static class UnitCommandRequest implements IRequest {
+        public int[] unitIds;
+        public UnitCommand command;
+        public Seq<Runnable> callbacks = new Seq<>();
 
-        public TileConfig(Building building, Object value, Runnable callback)
-        {
-            this.building = building;
-            this.value = value;
-            this.callback = callback;
+        private boolean executed = false;
+
+        public UnitCommandRequest(int[] unitIds, UnitCommand command) {
+            this.unitIds = unitIds;
+            this.command = command;
         }
 
-        public TileConfig(Building building, Object value)
-        {
-            this.building = building;
-            this.value = value;
+        public UnitCommandRequest(int[] unitIds, UnitCommand command, Runnable callback) {
+            this.unitIds = unitIds;
+            this.command = command;
+            callbacks.add(callback);
         }
 
         @Override
-        public void Execute() 
-        {
-            if (building == null || building.dead) return;
-            Call.tileConfig(Vars.player, building, value);
-            if (callback != null) callback.run();
+        public void Execute() {
+            Call.setUnitCommand(Vars.player, unitIds, command);
+            for (Runnable callback : callbacks) {
+                if (callback == null)
+                    continue;
+                callback.run();
+            }
+        }
+
+        @Override
+        public boolean AreSimiliar(IRequest request) {
+            if (!(request instanceof UnitCommandRequest))
+                return false;
+            UnitCommandRequest commandRequest = (UnitCommandRequest) request;
+            if (commandRequest.command != command)
+                return false;
+            return true;
+        }
+
+        @Override
+        public void MergeRequest(IRequest request) {
+            if (!(request instanceof UnitCommandRequest))
+                return;
+            UnitCommandRequest commandRequest = (UnitCommandRequest) request;
+
+            unitIds = ArrayUtils.Concatenate(unitIds, commandRequest.unitIds);
+            callbacks.add(commandRequest.callbacks);
+        }
+
+        @Override
+        public boolean IsExecuted() {
+            return executed;
+        }
+
+        @Override
+        public void SetExecuted(boolean executed) {
+            this.executed = executed;
         }
     }
 }

@@ -2,8 +2,8 @@ package controlhelper;
 
 import arc.files.*;
 import controlhelper.core.events.*;
+import controlhelper.core.inputs.*;
 import controlhelper.core.requestexecutor.*;
-import controlhelper.inputs.*;
 import controlhelper.modules.*;
 import controlhelper.modules.buildingsdepowerer.*;
 import controlhelper.ui.settings.*;
@@ -34,7 +34,7 @@ public class ControlHelper extends Mod {
     public static NodesBreaker nodesBreaker;
     public static PlansSkipper plansSkipper;
     public static BuildingsOverdrawer buildingsOverdrawer;
-
+    public static CommandBuffer commandBuffer;
 
     public static ControlHelperWindow controlHelperWindow;
 
@@ -68,6 +68,7 @@ public class ControlHelper extends Mod {
         plansSkipper = new PlansSkipper();
         nodesBreaker = new NodesBreaker();
         buildingsOverdrawer = new BuildingsOverdrawer();
+        commandBuffer = new CommandBuffer();
 
         controlHelperWindow = new ControlHelperWindow();
 
@@ -92,8 +93,11 @@ public class ControlHelper extends Mod {
         plansSkipper.Init();
         nodesBreaker.Init();
         buildingsOverdrawer.Init();
+        commandBuffer.Init();
 
         controlHelperWindow.Init();
         controlHelperWindow.Build();
     }
 }
+
+//todo добавить возможность удалять приказы на юнита с реквест датабазы
