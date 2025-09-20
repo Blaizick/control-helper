@@ -13,7 +13,7 @@ Features that could have been in the original if it had been intended as a compe
   * [Fire rebuilder(Hotkey)](#fire-rebuilderhotkey)
   * [Distribution alternator(CH Window/Hotkey)](#distribution-alternatorch-windowhotkey)
   * [Nodes breaker](#nodes-breaker)
-  * [Plans skipper(`UNSTABLE!1)](#plans-skipperunstable)
+  * [Plans skipper(`UNSTABLE!`)](#plans-skipperunstable)
   * [Unit request buffer(Hotkey)](#unit-request-bufferhotkey)
 
 # Features
