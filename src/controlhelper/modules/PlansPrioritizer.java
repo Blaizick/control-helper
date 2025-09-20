@@ -11,6 +11,7 @@ import mindustry.content.Blocks;
 import mindustry.entities.Units;
 import mindustry.entities.units.BuildPlan;
 import mindustry.type.Item;
+import mindustry.type.ItemStack;
 import mindustry.world.Block;
 import mindustry.world.blocks.defense.turrets.Turret;
 
@@ -25,7 +26,7 @@ public class PlansPrioritizer {
 
     public void Init() {
         Events.on(PlayerPlansChangeEvent.class, e -> {
-            if (!IsEnabled())
+            if (!IsEnabled() || Vars.player == null)
                 return;
             boolean infinite = Vars.state.rules.infiniteResources || Vars.player.unit().team.rules().infiniteResources;
             if (Vars.player.unit().core() == null && !infinite)

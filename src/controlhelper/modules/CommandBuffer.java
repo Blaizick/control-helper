@@ -9,7 +9,7 @@ import arc.math.geom.Vec2;
 import arc.struct.Queue;
 import arc.struct.Seq;
 import arc.util.Log;
-import controlhelper.core.inputs.Keybind;
+import controlhelper.core.inputs.AKeybind;
 import controlhelper.core.requestexecutor.IUnmergableRequest.MoveRequest;
 import controlhelper.utils.ArrayUtils;
 import mindustry.Vars;
@@ -37,7 +37,7 @@ public class CommandBuffer {
             if (Vars.control.input.commandMode) {
                 Seq<Unit> selected = Vars.control.input.selectedUnits.copy();
 
-                if (Keybind.bufferUnits.KeyTap()) {
+                if (AKeybind.bufferUnits.KeyTap()) {
                     if (!ArrayUtils.AreSame(units, selected)) {
                         Clear();
                         if (curMoveRequest != null && !curMoveRequest.IsExecuted()) {
@@ -54,7 +54,7 @@ public class CommandBuffer {
 
                         Teamc attack = Vars.world.buildWorld(target.x, target.y);
 
-                        if (attack == null || attack.team() == Vars.player.team()) {
+                        if (attack == null || (Vars.player != null && attack.team() == Vars.player.team())) {
                             attack = Vars.control.input.selectedEnemyUnit(target.x, target.y);
                         }
 
@@ -73,7 +73,7 @@ public class CommandBuffer {
                         }
                     }
                 }
-                if (Keybind.attack.KeyTap()) {
+                if (AKeybind.attack.KeyTap()) {
                     if (selected.size > 0) {
                         Clear();
                         if (curMoveRequest != null && !curMoveRequest.IsExecuted()) {

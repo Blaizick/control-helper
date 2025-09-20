@@ -17,7 +17,6 @@ import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.entities.units.BuildPlan;
 import mindustry.gen.Building;
-import mindustry.logic.LExecutor.Var;
 import mindustry.world.Block;
 
 public class NodesBreaker {
@@ -27,13 +26,13 @@ public class NodesBreaker {
 
     public NodesBreaker() {
         this.plastConveyor = Blocks.plastaniumConveyor;
-        this.breakBlocks = new Seq(new Block[] { Blocks.powerNode });
-        this.replacePlans = new ObjectMap();
+        this.breakBlocks = new Seq<>(new Block[] { Blocks.powerNode });
+        this.replacePlans = new ObjectMap<>();
     }
 
     public void Init() {
         Events.on(CHEventType.PlayerPlansChangeEvent.class, (e) -> {
-            if (!IsEnabled() || !Vars.state.isGame()) {
+            if (!IsEnabled() || !Vars.state.isGame() || Vars.player == null) {
                 replacePlans.clear();
                 return;
             }
@@ -71,6 +70,9 @@ public class NodesBreaker {
         });
 
         Events.on(PlayerPlansChangeEvent.class, e -> {
+            if (Vars.player == null) {
+                return;
+            }
             for (Building build : replacePlans.keys()) {
                 if (build.dead || (build.tile != null && build.tile.build == null)) {
                     Vars.player.unit().plans.add(replacePlans.get(build));
@@ -81,7 +83,7 @@ public class NodesBreaker {
     }
 
     public Queue<BuildPlan> GetEdges(Queue<BuildPlan> plans) {
-        Queue<BuildPlan> edges = new Queue();
+        Queue<BuildPlan> edges = new Queue<>();
 
         for (BuildPlan plan : plans) {
             if (plan == null || plan.block == null)
@@ -98,13 +100,13 @@ public class NodesBreaker {
     public Queue<BuildPlan> GetCollisions(BuildPlan plan, Queue<BuildPlan> plans) {
         return plan != null && plan.block != null
                 ? this.GetCollisions(new Vec2Int(plan.x, plan.y), plan.block.size, plans)
-                : new Queue();
+                : new Queue<>();
     }
 
     public Queue<BuildPlan> GetCollisions(Vec2Int pos, int size, Queue<BuildPlan> plans) {
-        Queue<BuildPlan> collisions = new Queue();
+        Queue<BuildPlan> collisions = new Queue<>();
         Seq<Vec2Int> positions = GeometryUtils.GetCollisions(pos, size);
-        Iterator it = positions.iterator();
+        Iterator<Vec2Int> it = positions.iterator();
 
         while (it.hasNext()) {
             Vec2Int p = (Vec2Int) it.next();

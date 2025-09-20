@@ -5,8 +5,8 @@ import static arc.Core.settings;
 
 import arc.input.KeyCode;
 
-public enum Keybind {
-    // region bindings
+public enum AKeybind {
+    // region Bindings
 
     split(KeyCode.j),
     attack(KeyCode.mouseRight, false),
@@ -19,19 +19,34 @@ public enum Keybind {
 
     // endregion
 
-    public static final Keybind[] all = values();
+    public static final AKeybind[] all = values();
 
     public final KeyCode defaultKey;
     public KeyCode key, additionalKey;
 
     public final boolean shown;
 
-    private Keybind(KeyCode defaultKey, boolean shown) {
+    public interface IKeybind {
+        public boolean KeyDown();
+
+        public boolean KeyTap();
+
+        public boolean KeyUp();
+
+        public void Unset();
+
+        public void Reset();
+
+        public void Rebind();
+
+    }
+
+    private AKeybind(KeyCode defaultKey, boolean shown) {
         this.defaultKey = defaultKey;
         this.shown = shown;
     }
 
-    private Keybind(KeyCode defaultKey) {
+    private AKeybind(KeyCode defaultKey) {
         this.defaultKey = defaultKey;
         this.shown = true;
     }
@@ -68,8 +83,8 @@ public enum Keybind {
         key = KeyCode.all[settings.getInt("control-helper-keybind-" + this + "-key", defaultKey.ordinal())];
     }
 
-    public Keybind FindDuplicate(KeyCode keyCode) {
-        for (Keybind keybind : all) {
+    public AKeybind FindDuplicate(KeyCode keyCode) {
+        for (AKeybind keybind : all) {
             if (keybind == this)
                 continue;
             if (keybind.key == keyCode)
@@ -80,7 +95,7 @@ public enum Keybind {
     }
 
     public static void Init() {
-        for (Keybind keybind : all) {
+        for (AKeybind keybind : all) {
             keybind.Load();
         }
     }

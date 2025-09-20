@@ -2,13 +2,8 @@ displayName: "Control Helper"
 name: "control-helper"
 author: "Blaizi"
 main: "controlhelper.ControlHelper"
-description: "If who I am is what you see
-Then, well, stay the hell away from me
-Away from me
-I'll stay right here amongst the flames
-And I'll sail across the endless sea
-Endless sea"
-version: 7
-minGameVersion: 145
+description: "V8 Version! You can also find a v7 version in releases on https://github.com/Blaizick/control-helper. Contains a lot of useful functions for pvp and competitive playing."
+version: 9
+minGameVersion: 150.1
 java: true
 hidden: true

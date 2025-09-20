@@ -4,6 +4,7 @@ import static arc.Core.settings;
 
 import arc.Core;
 import arc.Events;
+import arc.input.KeyCode;
 import arc.struct.Seq;
 import arc.util.Log;
 import mindustry.Vars;
@@ -15,9 +16,9 @@ import mindustry.type.UnitType;
 
 public class SupportsIgnorer {
     public long resetDelay = 500l, lastTapTime = 0l;
-    protected boolean deselectNextFrame = false;
+    public boolean deselectNextFrame = false;
 
-    protected boolean deselected = false;
+    public boolean deselected = false;
 
     public Seq<UnitType> unitsToIgnore = new Seq<>(new UnitType[] {
             UnitTypes.poly,
@@ -28,7 +29,7 @@ public class SupportsIgnorer {
         Events.run(Trigger.update, () -> {
             if (!IsEnabled())
                 return;
-            if (!Vars.state.isGame() || !Vars.control.input.commandMode)
+            if (!Vars.state.isGame() || !Vars.control.input.commandMode || Vars.player == null)
                 return;
 
             if (deselectNextFrame) {
@@ -37,7 +38,7 @@ public class SupportsIgnorer {
                 deselectNextFrame = false;
             }
 
-            if (Core.input.keyTap(Binding.select_all_units)) {
+            if (Core.input.keyTap(Binding.selectAllUnits)) {
                 if (System.currentTimeMillis() - lastTapTime <= (long) resetDelay) {
                     deselectNextFrame = true;
                     deselected = !deselected;

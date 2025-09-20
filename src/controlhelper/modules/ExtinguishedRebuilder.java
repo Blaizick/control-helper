@@ -8,7 +8,7 @@ import arc.math.geom.Vec2;
 import arc.struct.Seq;
 import controlhelper.core.CHDraw;
 import controlhelper.core.Vec2Int;
-import controlhelper.core.inputs.Keybind;
+import controlhelper.core.inputs.AKeybind;
 import controlhelper.utils.GeometryUtils;
 import mindustry.Vars;
 import mindustry.entities.Fires;
@@ -41,13 +41,13 @@ public class ExtinguishedRebuilder {
                 CHDraw.Selection(new Vec2Int(firstX, firstY), new Vec2Int(secondX, secondY), maxLength, col1, col2);
         });
         Events.run(Trigger.update, () -> {
-            if (!Vars.state.isGame() || Vars.control.input.commandMode) {
+            if (!Vars.state.isGame() || Vars.player == null || Vars.control.input.commandMode) {
                 selection = false;
                 selections.clear();
                 return;
             }
 
-            if (Keybind.rebuildExtinguished.KeyDown()) {
+            if (AKeybind.rebuildExtinguished.KeyDown()) {
                 secondX = GeometryUtils.TileX(Core.input.mouseX());
                 secondY = GeometryUtils.TileY(Core.input.mouseY());
                 if (!selection) {
@@ -58,7 +58,7 @@ public class ExtinguishedRebuilder {
                 selection = true;
             }
 
-            if (Keybind.rebuildExtinguished.KeyUp()) {
+            if (AKeybind.rebuildExtinguished.KeyUp()) {
                 secondX = GeometryUtils.TileX(Core.input.mouseX());
                 secondY = GeometryUtils.TileY(Core.input.mouseY());
 

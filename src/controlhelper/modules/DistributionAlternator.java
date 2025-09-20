@@ -9,7 +9,7 @@ import arc.struct.Seq;
 import arc.util.Nullable;
 import controlhelper.core.Vec2Int;
 import controlhelper.core.events.CHEventType.PlayerPlansChangeEvent;
-import controlhelper.core.inputs.Keybind;
+import controlhelper.core.inputs.AKeybind;
 import controlhelper.utils.ArrayUtils;
 import controlhelper.utils.GeneralUtils;
 import controlhelper.utils.GeometryUtils;
@@ -33,7 +33,7 @@ public class DistributionAlternator {
 
     public void Init() {
         Events.run(Trigger.update, () -> {
-            if (Keybind.alternateDistribution.KeyTap()) {
+            if (AKeybind.alternateDistribution.KeyTap()) {
                 SetEnabled(!IsEnabled());
             }
         });
@@ -41,7 +41,7 @@ public class DistributionAlternator {
         Events.on(PlayerPlansChangeEvent.class, e -> {
             if (!IsEnabled())
                 return;
-            if (!Vars.state.isGame())
+            if (!Vars.state.isGame() || Vars.player == null)
                 return;
             if (e.added == null || e.added.size == 0 || e.added.indexOf(p -> !p.breaking) == -1)
                 return;

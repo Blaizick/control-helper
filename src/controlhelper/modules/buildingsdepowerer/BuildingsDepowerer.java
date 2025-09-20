@@ -27,7 +27,7 @@ public class BuildingsDepowerer {
         for (Building building : Groups.build) {
             if (building == null || building.team != Vars.player.team())
                 continue;
-            if (!depowerBlocks.contains(building.block()))
+            if (!depowerBlocks.contains(building.block))
                 continue;
 
             DepowerBuild(building);
@@ -48,7 +48,7 @@ public class BuildingsDepowerer {
         for (Building building : Groups.build) {
             if (building == null || building.team != Vars.player.team())
                 continue;
-            if (!depowerBlocks.contains(building.block()))
+            if (!depowerBlocks.contains(building.block))
                 continue;
 
             PowerBuild(building);

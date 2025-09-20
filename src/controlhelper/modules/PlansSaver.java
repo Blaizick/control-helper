@@ -22,12 +22,11 @@ public class PlansSaver {
 
     public void Init() {
         Events.run(Trigger.update, () -> {
-            if (!IsEnabled())
+            if (!IsEnabled() || !Vars.state.isGame()) {
                 return;
-            if (!Vars.state.isGame())
-                return;
+            }
 
-            if (input.keyTap(Binding.respawn) || Vars.player.dead()) {
+            if (input.keyTap(Binding.respawn) || Vars.player == null || Vars.player.dead()) {
                 if (resetPlans == true)
                     return;
                 if (plans.size == 0)
@@ -36,7 +35,7 @@ public class PlansSaver {
                 resetTime = System.currentTimeMillis();
             }
 
-            if (resetPlans
+            if (resetPlans && Vars.player != null
                     && (Vars.player.unit().plans.size == 0 || !ArrayUtils.AreSame(Vars.player.unit().plans, plans))) {
                 resetPlans = false;
                 if (System.currentTimeMillis() - resetTime > maxResetTime)
