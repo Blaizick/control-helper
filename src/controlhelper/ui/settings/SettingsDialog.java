@@ -33,7 +33,6 @@ public class SettingsDialog extends BaseDialog {
         // table.checkPref("handMiner", true);
         // table.checkPref("ignoreSupportUnits", true);
         // table.checkPref("showControlHelperWindow", false);
-        // table.checkPref("prioritizePlans", true);
         // table.checkPref("nodesBreaker", true);
         // table.checkPref("plansSkipper", false);
         // table.checkPref("buildingsOverdrawer", true);
@@ -42,6 +41,7 @@ public class SettingsDialog extends BaseDialog {
         TooltipCheckPref("plansSaver", true);
         TooltipCheckPref("handMiner", true);
         TooltipCheckPref("ignoreSupportUnits", true);
+        TooltipCheckPref("prioritizePlans", true);
         TooltipCheckPref("showControlHelperWindow", false);
         TooltipCheckPref("nodesBreaker", true);
         TooltipCheckPref("plansSkipper", false);
