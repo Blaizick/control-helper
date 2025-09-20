@@ -1,4 +1,4 @@
-# Control рelper contains a lot of useful functions for pvp and competitive playing.
+# Control helper - quality of life mod for mindustry pvp and competitive playing
 Features that could have been in the original if it had been intended as a competitive game and and cheats that make the game unfair.
 
 # Table of content
@@ -13,7 +13,7 @@ Features that could have been in the original if it had been intended as a compe
   * [Fire rebuilder(Hotkey)](#fire-rebuilderhotkey)
   * [Distribution alternator(CH Window/Hotkey)](#distribution-alternatorch-windowhotkey)
   * [Nodes breaker](#nodes-breaker)
-  * [Plans skipper(`UNSTABLE!1)](#plans-skipperunstable1)
+  * [Plans skipper(`UNSTABLE!1)](#plans-skipperunstable)
   * [Unit request buffer(Hotkey)](#unit-request-bufferhotkey)
 
 # Features
@@ -48,7 +48,7 @@ Alternates conveyors(except for plastanium and armored ones), junctions and rout
 ## Nodes breaker
 Breaks small nodes on the way of the plastanium conveyor.
 
-## Plans skipper(`UNSTABLE!1)
+## Plans skipper(`UNSTABLE!`)
 Core unit won't build plans you don't have the resources for.
 
 ## Units overdrawer
