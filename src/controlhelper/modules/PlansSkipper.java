@@ -38,9 +38,13 @@ public class PlansSkipper {
 
     public void Init() {
         Events.run(Trigger.update, () -> {
-            if (Vars.control.input instanceof DesktopInput && this.IsEnabled() && Vars.state.isGame()
+            if (Vars.control.input instanceof DesktopInput && this.IsEnabled()
                     && Vars.player != null && Vars.player.unit() != null
                     && !Core.input.keyTap(Binding.clearBuilding)) {
+                if (!Vars.state.isGame()) {
+                    skipBuffer.clear();
+                    return;
+                }
                 DesktopInput input = (DesktopInput) Vars.control.input;
                 this.pos1 = new Vec2Int(input.selectX, input.selectY);
                 this.pos2 = new Vec2Int(GeometryUtils.TileX((float) Core.input.mouseX()),
@@ -49,14 +53,17 @@ public class PlansSkipper {
                     this.RemoveSelection();
                 }
 
-            } else {
-                this.skipBuffer.clear();
             }
         });
         Timer.schedule(() -> {
-            if (Vars.control.input instanceof DesktopInput && this.IsEnabled() && Vars.state.isGame()
+            if (Vars.control.input instanceof DesktopInput && this.IsEnabled()
                     && Vars.player != null && Vars.player.unit() != null
                     && !Core.input.keyTap(Binding.clearBuilding)) {
+                if (!Vars.state.isGame()) {
+                    skipBuffer.clear();
+                    return;
+                }
+
                 int counter = 0;
 
                 for (int max = Vars.player.unit().plans.size; counter < max
@@ -80,13 +87,16 @@ public class PlansSkipper {
                     }
                 }
 
-            } else {
-                this.skipBuffer.clear();
             }
         }, 0.0F, this.refreshDelay);
         Events.on(CHEventType.PlayerPlansChangeEvent.class, (e) -> {
-            if (Vars.control.input instanceof DesktopInput && this.IsEnabled() && Vars.state.isGame()
+            if (Vars.control.input instanceof DesktopInput && this.IsEnabled()
                     && Vars.player != null && Vars.player.unit() != null) {
+                if (!Vars.state.isGame()) {
+                    skipBuffer.clear();
+                    return;
+                }
+
                 Iterator var2 = e.added.iterator();
 
                 while (var2.hasNext()) {
@@ -98,16 +108,16 @@ public class PlansSkipper {
                     }
                 }
 
-            } else {
-                this.skipBuffer.clear();
             }
         });
         Events.run(Trigger.draw, () -> {
-            if (this.IsEnabled() && Vars.state.isGame() && Vars.player != null && Vars.player.unit() != null
+            if (this.IsEnabled() && Vars.player != null && Vars.player.unit() != null
                     && Vars.control.input instanceof DesktopInput) {
+                if (!Vars.state.isGame()) {
+                    skipBuffer.clear();
+                    return;
+                }
                 this.DrawBottom();
-            } else {
-                this.skipBuffer.clear();
             }
         });
     }
