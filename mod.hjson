@@ -7,3 +7,4 @@ version: 10
 minGameVersion: 150.1
 java: true
 hidden: true
+hideBrowser: true
