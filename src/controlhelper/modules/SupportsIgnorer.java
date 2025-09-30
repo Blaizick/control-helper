@@ -39,7 +39,7 @@ public class SupportsIgnorer {
                 deselectNextFrame = false;
             }
 
-            if (Core.input.keyTap(Binding.selectAllUnits)) {
+            if (Core.input.keyTap(Binding.select_all_units)) {
                 if (System.currentTimeMillis() - lastTapTime <= (long) resetDelay) {
                     deselectNextFrame = true;
                     deselected = !deselected;

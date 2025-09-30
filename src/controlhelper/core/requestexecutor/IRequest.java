@@ -40,7 +40,7 @@ public interface IRequest extends IUnmergableRequest {
 
         @Override
         public void Execute() {
-            Call.commandUnits(Vars.player, unitIds, building, unit, target, false, true);
+            Call.commandUnits(Vars.player, unitIds, building, unit, target);
             for (Runnable callback : callbacks) {
                 if (callback == null)
                     continue;

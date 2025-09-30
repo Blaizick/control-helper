@@ -118,7 +118,7 @@ public interface IUnmergableRequest {
 
         @Override
         public void Execute() {
-            Call.commandUnits(Vars.player, unitIds, building, unit, target, false, true);
+            Call.commandUnits(Vars.player, unitIds, building, unit, target);
             if (callback != null) {
                 callback.run();
             }

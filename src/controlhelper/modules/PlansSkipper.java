@@ -40,7 +40,7 @@ public class PlansSkipper {
         Events.run(Trigger.update, () -> {
             if (Vars.control.input instanceof DesktopInput && this.IsEnabled()
                     && Vars.player != null && Vars.player.unit() != null
-                    && !Core.input.keyTap(Binding.clearBuilding)) {
+                    && !Core.input.keyTap(Binding.clear_building)) {
                 if (!Vars.state.isGame()) {
                     skipBuffer.clear();
                     return;
@@ -49,7 +49,7 @@ public class PlansSkipper {
                 this.pos1 = new Vec2Int(input.selectX, input.selectY);
                 this.pos2 = new Vec2Int(GeometryUtils.TileX((float) Core.input.mouseX()),
                         GeometryUtils.TileY((float) Core.input.mouseY()));
-                if (Core.input.keyRelease(Binding.breakBlock) && Vars.control.input.isBreaking()) {
+                if (Core.input.keyRelease(Binding.break_block) && Vars.control.input.isBreaking()) {
                     this.RemoveSelection();
                 }
 
@@ -58,7 +58,7 @@ public class PlansSkipper {
         Timer.schedule(() -> {
             if (Vars.control.input instanceof DesktopInput && this.IsEnabled()
                     && Vars.player != null && Vars.player.unit() != null
-                    && !Core.input.keyTap(Binding.clearBuilding)) {
+                    && !Core.input.keyTap(Binding.clear_building)) {
                 if (!Vars.state.isGame()) {
                     skipBuffer.clear();
                     return;
