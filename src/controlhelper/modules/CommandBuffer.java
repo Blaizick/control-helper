@@ -9,7 +9,8 @@ import arc.math.geom.Vec2;
 import arc.struct.Queue;
 import arc.struct.Seq;
 import arc.util.Log;
-import controlhelper.core.inputs.AKeybind;
+import controlhelper.core.inputs.CHKeybind;
+import controlhelper.core.inputs.CHInput;
 import controlhelper.core.requestexecutor.IUnmergableRequest.MoveRequest;
 import controlhelper.utils.ArrayUtils;
 import mindustry.Vars;
@@ -35,9 +36,9 @@ public class CommandBuffer {
             }
 
             if (Vars.control.input.commandMode) {
-                Seq<Unit> selected = Vars.control.input.selectedUnits.copy();
+                Seq<Unit> selected = CHInput.GetSelectedUnits().copy();
 
-                if (AKeybind.bufferUnits.KeyTap()) {
+                if (CHKeybind.bufferUnits.KeyTap()) {
                     if (!ArrayUtils.AreSame(units, selected)) {
                         Clear();
                         if (curMoveRequest != null && !curMoveRequest.IsExecuted()) {
@@ -73,7 +74,7 @@ public class CommandBuffer {
                         }
                     }
                 }
-                if (AKeybind.attack.KeyTap()) {
+                if (CHKeybind.attack.KeyTap()) {
                     if (selected.size > 0) {
                         Clear();
                         if (curMoveRequest != null && !curMoveRequest.IsExecuted()) {

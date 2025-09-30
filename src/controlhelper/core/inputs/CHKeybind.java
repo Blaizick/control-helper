@@ -5,7 +5,7 @@ import static arc.Core.settings;
 
 import arc.input.KeyCode;
 
-public enum AKeybind {
+public enum CHKeybind {
     // region Bindings
 
     split(KeyCode.j),
@@ -19,7 +19,7 @@ public enum AKeybind {
 
     // endregion
 
-    public static final AKeybind[] all = values();
+    public static final CHKeybind[] all = values();
 
     public final KeyCode defaultKey;
     public KeyCode key, additionalKey;
@@ -41,12 +41,12 @@ public enum AKeybind {
 
     }
 
-    private AKeybind(KeyCode defaultKey, boolean shown) {
+    private CHKeybind(KeyCode defaultKey, boolean shown) {
         this.defaultKey = defaultKey;
         this.shown = shown;
     }
 
-    private AKeybind(KeyCode defaultKey) {
+    private CHKeybind(KeyCode defaultKey) {
         this.defaultKey = defaultKey;
         this.shown = true;
     }
@@ -83,8 +83,8 @@ public enum AKeybind {
         key = KeyCode.all[settings.getInt("control-helper-keybind-" + this + "-key", defaultKey.ordinal())];
     }
 
-    public AKeybind FindDuplicate(KeyCode keyCode) {
-        for (AKeybind keybind : all) {
+    public CHKeybind FindDuplicate(KeyCode keyCode) {
+        for (CHKeybind keybind : all) {
             if (keybind == this)
                 continue;
             if (keybind.key == keyCode)
@@ -95,7 +95,7 @@ public enum AKeybind {
     }
 
     public static void Init() {
-        for (AKeybind keybind : all) {
+        for (CHKeybind keybind : all) {
             keybind.Load();
         }
     }

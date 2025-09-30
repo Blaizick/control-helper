@@ -5,7 +5,8 @@ import static arc.Core.settings;
 import arc.Events;
 import arc.math.Mathf;
 import arc.struct.Seq;
-import controlhelper.core.inputs.AKeybind;
+import controlhelper.core.inputs.CHInput;
+import controlhelper.core.inputs.CHKeybind;
 import mindustry.Vars;
 import mindustry.game.EventType.Trigger;
 import mindustry.gen.Unit;
@@ -13,16 +14,16 @@ import mindustry.gen.Unit;
 public class UnitSplitter {
     public void Init() {
         Events.run(Trigger.update, () -> {
-            if (AKeybind.split.KeyTap()) {
+            if (CHKeybind.split.KeyTap()) {
                 Split(0.5f);
             }
-            if (AKeybind.splitAdd1.KeyTap()) {
+            if (CHKeybind.splitAdd1.KeyTap()) {
                 Split((float) settings.getInt("splitAdd1.size", 0) / 100f);
             }
-            if (AKeybind.splitAdd2.KeyTap()) {
+            if (CHKeybind.splitAdd2.KeyTap()) {
                 Split((float) settings.getInt("splitAdd2.size", 0) / 100f);
             }
-            if (AKeybind.splitAdd3.KeyTap()) {
+            if (CHKeybind.splitAdd3.KeyTap()) {
                 Split((float) settings.getInt("splitAdd3.size", 0) / 100f);
             }
         });
@@ -33,7 +34,8 @@ public class UnitSplitter {
             return;
         }
 
-        Seq<Unit> selectedUnits = Vars.control.input.selectedUnits;
+        // Seq<Unit> selectedUnits = Vars.control.input.selectedUnits;
+        Seq<Unit> selectedUnits = CHInput.GetSelectedUnits();
         if (selectedUnits == null || selectedUnits.size == 0)
             return;
         Seq<Unit> validUnits = new Seq<>();
@@ -53,6 +55,7 @@ public class UnitSplitter {
             units.add(validUnits.get(i));
         }
 
-        Vars.control.input.selectedUnits = units;
+        CHInput.SetSelectedUnits(units);
+        // Vars.control.input.selectedUnits = units;
     }
 }

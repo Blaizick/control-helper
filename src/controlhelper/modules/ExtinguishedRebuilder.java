@@ -8,7 +8,7 @@ import arc.math.geom.Vec2;
 import arc.struct.Seq;
 import controlhelper.core.CHDraw;
 import controlhelper.core.Vec2Int;
-import controlhelper.core.inputs.AKeybind;
+import controlhelper.core.inputs.CHKeybind;
 import controlhelper.utils.GeometryUtils;
 import mindustry.Vars;
 import mindustry.entities.Fires;
@@ -47,7 +47,7 @@ public class ExtinguishedRebuilder {
                 return;
             }
 
-            if (AKeybind.rebuildExtinguished.KeyDown()) {
+            if (CHKeybind.rebuildExtinguished.KeyDown()) {
                 secondX = GeometryUtils.TileX(Core.input.mouseX());
                 secondY = GeometryUtils.TileY(Core.input.mouseY());
                 if (!selection) {
@@ -58,7 +58,7 @@ public class ExtinguishedRebuilder {
                 selection = true;
             }
 
-            if (AKeybind.rebuildExtinguished.KeyUp()) {
+            if (CHKeybind.rebuildExtinguished.KeyUp()) {
                 secondX = GeometryUtils.TileX(Core.input.mouseX());
                 secondY = GeometryUtils.TileY(Core.input.mouseY());
 

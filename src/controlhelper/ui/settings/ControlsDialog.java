@@ -3,7 +3,7 @@ package controlhelper.ui.settings;
 import static arc.Core.bundle;
 import static controlhelper.ControlHelper.rebindOverlay;
 
-import controlhelper.core.inputs.AKeybind;
+import controlhelper.core.inputs.CHKeybind;
 import mindustry.gen.Iconc;
 import mindustry.ui.dialogs.BaseDialog;
 
@@ -26,7 +26,7 @@ public class ControlsDialog extends BaseDialog {
         cont.clear();
         cont.row();
 
-        for (AKeybind keybind : AKeybind.all) {
+        for (CHKeybind keybind : CHKeybind.all) {
             if (!keybind.shown)
                 continue;
 
@@ -45,7 +45,7 @@ public class ControlsDialog extends BaseDialog {
             }).size(buttonWidth, buttonHeight).padLeft(buttonPad);
 
             cont.button(bundle.get("settings.keybinds.resetButton.label"), () -> {
-                AKeybind duplicate = keybind.FindDuplicate(keybind.defaultKey);
+                CHKeybind duplicate = keybind.FindDuplicate(keybind.defaultKey);
                 if (duplicate != null) {
                     duplicate.Reset();
                     duplicate.Save();

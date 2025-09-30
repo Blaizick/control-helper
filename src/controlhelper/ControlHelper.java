@@ -62,7 +62,7 @@ public class ControlHelper extends Mod {
 
         controlHelperWindow = new ControlHelperWindow();
 
-        AKeybind.Init();
+        CHKeybind.Init();
 
         rebindOverlay.Init();
         controlsDialog.Init();

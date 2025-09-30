@@ -7,6 +7,7 @@ import arc.Events;
 import arc.input.KeyCode;
 import arc.struct.Seq;
 import arc.util.Log;
+import controlhelper.core.inputs.CHInput;
 import mindustry.Vars;
 import mindustry.content.UnitTypes;
 import mindustry.game.EventType.Trigger;
@@ -52,18 +53,17 @@ public class SupportsIgnorer {
     }
 
     public void DeselectUnits() {
-        try {
-            Seq<Unit> units = new Seq<>();
-            for (Unit unit : Vars.control.input.selectedUnits) {
-                if (!unitsToIgnore.contains(unit.type)) {
-                    units.add(unit);
-                }
+        Seq<Unit> selectedUnits = CHInput.GetSelectedUnits();
+
+        Seq<Unit> units = new Seq<>();
+        for (Unit unit : selectedUnits) {
+            if (!unitsToIgnore.contains(unit.type)) {
+                units.add(unit);
             }
-            Vars.control.input.selectedUnits = units;
-        } catch (Exception e) {
-            Log.info(e);
         }
 
+        CHInput.SetSelectedUnits(units);
+        // selectedUnits = units;
     }
 
     public boolean IsEnabled() {

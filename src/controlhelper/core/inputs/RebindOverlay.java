@@ -16,7 +16,7 @@ public class RebindOverlay extends BaseDialog {
         super("");
     }
 
-    protected AKeybind keybind;
+    protected CHKeybind keybind;
     public Seq<KeyCode> ignoreKeys = new Seq<>(new KeyCode[] {
             KeyCode.mouseLeft,
             KeyCode.mouseRight
@@ -85,7 +85,7 @@ public class RebindOverlay extends BaseDialog {
         });
     }
 
-    public void Show(AKeybind keybind) {
+    public void Show(CHKeybind keybind) {
         this.keybind = keybind;
         show();
     }
