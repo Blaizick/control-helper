@@ -35,7 +35,7 @@ public class HandMiner {
             if (Vars.player.unit().plans == null || Vars.player.unit().plans.size == 0)
                 return;
 
-            if (Core.input.keyDown(Binding.pause_building)) {
+            if (Core.input.keyDown(Binding.pauseBuilding)) {
                 if (!pressed) {
                     pressTime = System.currentTimeMillis();
                     pressed = true;
@@ -45,7 +45,7 @@ public class HandMiner {
                     active = true;
                 }
             }
-            if (Core.input.keyRelease(Binding.pause_building)) {
+            if (Core.input.keyRelease(Binding.pauseBuilding)) {
                 pressed = false;
                 active = false;
             }
