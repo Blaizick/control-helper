@@ -110,48 +110,6 @@ public class HandMiner {
         }
 
         return Mathf.clamp(cost - coreAmount, 0, Integer.MAX_VALUE);
-
-        /*
-         * Queue<BuildPlan> plans = Vars.player.unit().plans;
-         * 
-         * int leastAmount = Integer.MAX_VALUE;
-         * boolean needed = false;
-         * for (BuildPlan plan : plans)
-         * {
-         * if (plan.breaking) continue;
-         * if (!plan.within(Vars.player, Vars.player.unit().range())) continue;
-         * 
-         * ItemStack[] requirements = plan.block.requirements;
-         * 
-         * for (int i = 0; i < requirements.length; i++)
-         * {
-         * ItemStack itemStack = requirements[i];
-         * 
-         * Item item = itemStack.item;
-         * if (item != targetItem) continue;
-         * 
-         * needed = true;
-         * int amount = itemStack.amount;
-         * if (amount < leastAmount)
-         * {
-         * leastAmount = amount;
-         * }
-         * 
-         * break;
-         * }
-         * }
-         * 
-         * if (!needed) return 0;
-         * 
-         * int coreAmount = GetCoreAmount(targetItem);
-         * int neededAmount = leastAmount - coreAmount;
-         * if (neededAmount < 0)
-         * {
-         * neededAmount = 0;
-         * }
-         * return neededAmount;
-         * 
-         */
     }
 
     public int GetCoreAmount(Item item) {

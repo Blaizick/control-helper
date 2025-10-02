@@ -38,88 +38,109 @@ public class PlansSkipper {
 
     public void Init() {
         Events.run(Trigger.update, () -> {
-            if (Vars.control.input instanceof DesktopInput && this.IsEnabled()
-                    && Vars.player != null && Vars.player.unit() != null
-                    && !Core.input.keyTap(Binding.clear_building)) {
-                if (!Vars.state.isGame()) {
-                    skipBuffer.clear();
-                    return;
-                }
-                DesktopInput input = (DesktopInput) Vars.control.input;
-                this.pos1 = new Vec2Int(input.selectX, input.selectY);
-                this.pos2 = new Vec2Int(GeometryUtils.TileX((float) Core.input.mouseX()),
-                        GeometryUtils.TileY((float) Core.input.mouseY()));
-                if (Core.input.keyRelease(Binding.break_block) && Vars.control.input.isBreaking()) {
-                    this.RemoveSelection();
-                }
+            if (HasResetted()) {
+                return;
+            }
 
+            DesktopInput input = (DesktopInput) Vars.control.input;
+            this.pos1 = new Vec2Int(input.selectX, input.selectY);
+            this.pos2 = new Vec2Int(GeometryUtils.TileX((float) Core.input.mouseX()),
+                    GeometryUtils.TileY((float) Core.input.mouseY()));
+            if (Core.input.keyRelease(Binding.break_block) && Vars.control.input.isBreaking()) {
+                this.RemoveSelection();
             }
         });
         Timer.schedule(() -> {
+            if (HasResetted()) {
+                return;
+            }
+
+            if (Core.input.keyTap(Binding.clear_building)) {
+                skipBuffer.clear();
+                return;
+            }
+            int counter = 0;
+
+            for (int max = Vars.player.unit().plans.size; counter < max
+                    && this.ShouldSkip((BuildPlan) Vars.player.unit().plans.first()); ++counter) {
+                BuildPlan plan = (BuildPlan) Vars.player.unit().plans.first();
+                if (!ControlHelper.eventsRunner.ignorePlans.contains(plan)) {
+                    ControlHelper.eventsRunner.ignorePlans.add(plan);
+                }
+
+                Vars.player.unit().plans.removeFirst();
+                this.skipBuffer.add(plan);
+            }
+
+            Iterator<BuildPlan> iterator = this.skipBuffer.iterator();
+
+            while (iterator.hasNext()) {
+                BuildPlan planx = (BuildPlan) iterator.next();
+                if (!this.ShouldSkip(planx)) {
+                    iterator.remove();
+                    Vars.player.unit().plans.add(planx);
+                }
+            }
             if (Vars.control.input instanceof DesktopInput && this.IsEnabled()
                     && Vars.player != null && Vars.player.unit() != null
                     && !Core.input.keyTap(Binding.clear_building)) {
                 if (!Vars.state.isGame()) {
                     skipBuffer.clear();
                     return;
-                }
-
-                int counter = 0;
-
-                for (int max = Vars.player.unit().plans.size; counter < max
-                        && this.ShouldSkip((BuildPlan) Vars.player.unit().plans.first()); ++counter) {
-                    BuildPlan plan = (BuildPlan) Vars.player.unit().plans.first();
-                    if (!ControlHelper.eventsRunner.ignorePlans.contains(plan)) {
-                        ControlHelper.eventsRunner.ignorePlans.add(plan);
-                    }
-
-                    Vars.player.unit().plans.removeFirst();
-                    this.skipBuffer.add(plan);
-                }
-
-                Iterator<BuildPlan> iterator = this.skipBuffer.iterator();
-
-                while (iterator.hasNext()) {
-                    BuildPlan planx = (BuildPlan) iterator.next();
-                    if (!this.ShouldSkip(planx)) {
-                        iterator.remove();
-                        Vars.player.unit().plans.add(planx);
-                    }
                 }
 
             }
         }, 0.0F, this.refreshDelay);
         Events.on(CHEventType.PlayerPlansChangeEvent.class, (e) -> {
-            if (Vars.control.input instanceof DesktopInput && this.IsEnabled()
-                    && Vars.player != null && Vars.player.unit() != null) {
-                if (!Vars.state.isGame()) {
-                    skipBuffer.clear();
-                    return;
+            if (HasResetted()) {
+                return;
+            }
+
+            Iterator var2 = e.added.iterator();
+
+            while (var2.hasNext()) {
+                BuildPlan plan = (BuildPlan) var2.next();
+                BuildPlan duplicate = GeneralUtils.GetPlanAt(new Vec2Int(plan.x, plan.y), plan.block.size,
+                        this.skipBuffer);
+                if (duplicate != null) {
+                    this.skipBuffer.remove(duplicate);
                 }
-
-                Iterator var2 = e.added.iterator();
-
-                while (var2.hasNext()) {
-                    BuildPlan plan = (BuildPlan) var2.next();
-                    BuildPlan duplicate = GeneralUtils.GetPlanAt(new Vec2Int(plan.x, plan.y), plan.block.size,
-                            this.skipBuffer);
-                    if (duplicate != null) {
-                        this.skipBuffer.remove(duplicate);
-                    }
-                }
-
             }
         });
         Events.run(Trigger.draw, () -> {
-            if (this.IsEnabled() && Vars.player != null && Vars.player.unit() != null
-                    && Vars.control.input instanceof DesktopInput) {
-                if (!Vars.state.isGame()) {
-                    skipBuffer.clear();
-                    return;
-                }
-                this.DrawBottom();
+            if (HasResetted()) {
+                return;
             }
+
+            this.DrawBottom();
         });
+    }
+
+    public boolean HasResetted() {
+        if (Vars.player == null || Vars.mobile || !Vars.state.isGame()) {
+            skipBuffer.clear();
+            return true;
+        }
+        if (!IsEnabled()) {
+            Reset();
+            return true;
+        }
+        if (Vars.player.unit() == null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public void Reset() {
+        if (Vars.player.unit() == null) {
+            skipBuffer.clear();
+            return;
+        }
+        for (BuildPlan plan : skipBuffer) {
+            Vars.player.unit().plans.add(plan);
+        }
+        skipBuffer.clear();
     }
 
     public void DrawBottom() {
