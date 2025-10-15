@@ -47,8 +47,6 @@ public class SettingsDialog extends BaseDialog {
         TooltipCheckPref("plansSkipper", false);
         TooltipCheckPref("buildingsOverdrawer", true);
 
-        // TooltipCheckPref("drillsValidator", "sin shalavi", false, null);
-
         table.row();
         table.button(bundle.get("settings.controlsButton.label"), () -> {
             controlsDialog.Refresh();
@@ -64,6 +62,7 @@ public class SettingsDialog extends BaseDialog {
         TooltipCheckPref(name, def, null);
     }
 
+    @SuppressWarnings("unchecked")
     public void TooltipCheckPref(String name, boolean def, Boolc changed) {
         var list = (Seq<Setting>) Reflect.get(table, "list");
         list.add(new TooltipCheckSetting(name, bundle.get("setting." + name + ".tooltip"), def, changed));

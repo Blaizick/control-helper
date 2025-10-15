@@ -19,21 +19,18 @@ public class HandMiner {
 
     public void Init() {
         Events.run(Trigger.update, () -> {
-            if (!IsEnabled())
+            if (!IsEnabled() || !Vars.state.isGame() || Vars.player == null || Vars.player.unit() == null
+                    || Vars.player.dead()
+                    || !Vars.player.within(Vars.player.unit().closestCore(), Vars.player.unit().range() - 1f)) {
+                active = false;
                 return;
-            if (!Vars.state.isGame())
-                return;
-            if (Vars.player == null || Vars.player.unit() == null || Vars.player.dead())
-                return;
-            if (Vars.player.team().cores().size == 0)
-                return;
-            if (!Vars.player.within(Vars.player.unit().closestCore(), Vars.player.unit().range() - 1f))
-                return;
+            }
             boolean infinite = Vars.state.rules.infiniteResources || Vars.player.unit().team.rules().infiniteResources;
-            if (Vars.player.unit().core() == null && !infinite)
+            if ((Vars.player.unit().core() == null && !infinite) || Vars.player.unit().plans == null
+                    || Vars.player.unit().plans.size == 0) {
+                active = false;
                 return;
-            if (Vars.player.unit().plans == null || Vars.player.unit().plans.size == 0)
-                return;
+            }
 
             if (Core.input.keyDown(Binding.pauseBuilding)) {
                 if (!pressed) {

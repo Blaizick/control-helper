@@ -231,6 +231,10 @@ public class PlansSkipper {
     }
 
     public boolean IsEnabled() {
-        return Core.settings.getBool("plansSkipper", true);
+        return Core.settings.getBool("plansSkipper", false);
+    }
+
+    public void SetEnabled(boolean value) {
+        Core.settings.put("plansSkipper", value);
     }
 }

@@ -3,10 +3,14 @@ package controlhelper.ui.windows;
 import static arc.Core.settings;
 import static controlhelper.ControlHelper.distributionAlternator;
 import static controlhelper.ControlHelper.factoriesDepowerer;
+import static controlhelper.ControlHelper.handMiner;
+import static controlhelper.ControlHelper.plansSkipper;
 import static controlhelper.ControlHelper.producersDepowerer;
 
 import controlhelper.modules.DistributionAlternator;
+import controlhelper.modules.HandMiner;
 import controlhelper.ui.elements.CHIconCheckBox;
+import controlhelper.ui.elements.CHIconIndicator;
 import controlhelper.ui.elements.CHRemoteIconCheckBox;
 import controlhelper.ui.elements.CHWindow;
 import mindustry.Vars;
@@ -42,11 +46,14 @@ public class ControlHelperWindow extends CHWindow {
                 producersDepowerer.PowerBuilds();
         }).Init()).size(buttonSize);
 
-        cont.add(new CHRemoteIconCheckBox(Iconc.blockInvertedSorter + "", b -> {
-            distributionAlternator.SetEnabled(b);
-        }, () -> {
-            return distributionAlternator.IsEnabled();
-        }).Init()).size(buttonSize);
+        cont.add(new CHRemoteIconCheckBox(Iconc.blockInvertedSorter + "", c -> distributionAlternator.SetEnabled(c),
+                distributionAlternator::IsEnabled).Init()).size(buttonSize);
+
+        cont.add(new CHRemoteIconCheckBox(Iconc.copy + "", c -> {
+            plansSkipper.SetEnabled(c);
+        }, plansSkipper::IsEnabled).Init()).size(buttonSize);
+
+        cont.add(new CHIconIndicator(Iconc.blockMechanicalDrill + "", () -> handMiner.active).Init()).size(buttonSize);
 
         // cont.add(new CHIconCheckPref("alternateDistribution",
         // Iconc.blockInvertedSorter + "", c -> {

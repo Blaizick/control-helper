@@ -36,7 +36,8 @@ public class PlansSaver {
             }
 
             if (resetPlans && Vars.player != null
-                    && (Vars.player.unit().plans.size == 0 || !ArrayUtils.AreSame(Vars.player.unit().plans, plans))) {
+                    && (Vars.player.unit() != null && Vars.player.unit().plans.size == 0
+                            || !ArrayUtils.AreSame(Vars.player.unit().plans, plans))) {
                 resetPlans = false;
                 if (System.currentTimeMillis() - resetTime > maxResetTime)
                     return;
@@ -53,6 +54,6 @@ public class PlansSaver {
     }
 
     public boolean IsEnabled() {
-        return settings.getBool("plansSaver");
+        return settings.getBool("plansSaver", true);
     }
 }
